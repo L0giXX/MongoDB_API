@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from datetime import datetime
 from bson import ObjectId
 
@@ -23,6 +23,7 @@ class AuthModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     username: str
     password: str
+    email: EmailStr
 
 
 class DataModel(BaseModel):
