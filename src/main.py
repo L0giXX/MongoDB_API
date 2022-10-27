@@ -1,25 +1,47 @@
+from os import stat
 import pymongo
 from fastapi import FastAPI, Body, HTTPException, status
 from fastapi.responses import Response, JSONResponse
 from fastapi.encoders import jsonable_encoder
-from .schemas import DataModel
+
+from .auth import Authhandler
+from .schemas import AuthModel, DataModel
 
 url = "mongodb+srv://L0giX:21032004Mm@clusterdata.chvb5kd.mongodb.net/?retryWrites=true&w=majority"
 client = pymongo.MongoClient(url)
 db = client["ESP32DB"]
 dataC = db["data"]
+profileC = db["profile"]
 
 app = FastAPI()
 
+auth_handler = Authhandler()
+
 
 @app.post("/register")
-def register():
-    return
+def register(req: AuthModel):
+    req = jsonable_encoder(req)
+    if profileC.find_one({"username": req["username"]}):
+        return Response(status_code=status.HTTP_400_BAD_REQUEST, content="Username bereits benutzt: [" + req["username"]+"]")
+
+    hashed_password = auth_handler.get_password_hash(req["password"])
+    req["password"] = hashed_password
+    newData = profileC.insert_one(req)
+    curData = profileC.find_one({"_id": newData.inserted_id})
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content=curData)
 
 
 @app.post("/login")
 def login():
     return
+
+
+@app.get("/profile/get")
+def getProfile():
+    tmp = []
+    for x in profileC.find():
+        tmp.append(x)
+    return JSONResponse(status_code=status.HTTP_200_OK, content=tmp)
 
 
 @app.post("/data/add")
