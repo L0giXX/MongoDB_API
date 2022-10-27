@@ -29,6 +29,7 @@ def register(req: AuthModel):
     newData = profileC.insert_one(req)
     curData = profileC.find_one({"_id": newData.inserted_id})
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=curData)
+# test
 
 
 @app.post("/login")
