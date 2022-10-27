@@ -16,3 +16,4 @@ Function
 - Saving sensor data into database
 - Getting data from database
 - Visualizing data on website
+- Register/login account
