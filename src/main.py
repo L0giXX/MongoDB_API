@@ -41,7 +41,9 @@ def login(req: AuthModel):
         for x in profileC.find({"username": user}):
             tmp.append(x)
         if auth_handler.verify_password(req["password"], tmp[0]["password"]):
-            return Response(status_code=status.HTTP_202_ACCEPTED, content="Password verifiziert!")
+            return Response(status_code=status.HTTP_202_ACCEPTED, content="Profil verifiziert!")
+        else:
+            return Response(status_code=status.HTTP_400_BAD_REQUEST, content="Passwort nicht korrekt!")
     else:
         return Response(status_code=status.HTTP_400_BAD_REQUEST, content="Username nicht registriert!")
 
