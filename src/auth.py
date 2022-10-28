@@ -8,5 +8,8 @@ class Authhandler():
     security = HTTPBearer()
     ctx = CryptContext(schemes=["sha256_crypt"])
 
-    def get_password_hash(self, password):
-        return self.ctx.hash(password)
+    def hash_password(self, pwd):
+        return self.ctx.hash(pwd)
+
+    def verify_password(self, pwd, hashed_pwd):
+        return self.ctx.verify(pwd, hashed_pwd)
