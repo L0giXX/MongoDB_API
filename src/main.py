@@ -24,7 +24,7 @@ def register(req: AuthModel):
     if profileC.find_one({"username": req["username"]}):
         return Response(status_code=status.HTTP_400_BAD_REQUEST, content="Username bereits benutzt: [" + req["username"]+"]")
 
-    hashed_password = auth_handler.get_password_hash(req["password"])
+    hashed_password = auth_handler.hash_password(req["password"])
     req["password"] = hashed_password
     newData = profileC.insert_one(req)
     curData = profileC.find_one({"_id": newData.inserted_id})
@@ -32,8 +32,18 @@ def register(req: AuthModel):
 
 
 @app.post("/login")
-def login():
-    return
+def login(req: AuthModel):
+    tmp = []
+    user = None
+    req = jsonable_encoder(req)
+    if profileC.find_one({"username": req["username"]}):
+        user = req["username"]
+        for x in profileC.find({"username": user}):
+            tmp.append(x)
+        if auth_handler.verify_password(req["password"], tmp[0]["password"]):
+            return Response(status_code=status.HTTP_202_ACCEPTED, content="Password verifiziert!")
+    else:
+        return Response(status_code=status.HTTP_400_BAD_REQUEST, content="Username nicht registriert!")
 
 
 @app.get("/profile/get")
