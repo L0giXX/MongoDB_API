@@ -3,7 +3,6 @@ import pymongo
 from fastapi import FastAPI, Body, HTTPException, status
 from fastapi.responses import Response, JSONResponse
 from fastapi.encoders import jsonable_encoder
-
 from .auth import Authhandler
 from .schemas import AuthModel, DataModel
 
@@ -16,6 +15,37 @@ profileC = db["profile"]
 app = FastAPI()
 
 auth_handler = Authhandler()
+
+
+class Datahandler():
+    def getData(sensor, type):
+        dict = {}
+        tmp1 = []
+        for x in dataC.find({"sensor": sensor}).sort(type, pymongo.DESCENDING).limit(1):
+            tmp1.append(x)
+        max = round(tmp1[0][type], 2)
+
+        tmp2 = []
+        for x in dataC.find({"sensor": sensor}).sort(type, pymongo.ASCENDING).limit(1):
+            tmp2.append(x)
+        min = round(tmp2[0][type], 2)
+
+        tmp3 = []
+        summe = 0
+        i = 0
+        for x in dataC.find({"sensor": sensor}):
+            tmp3.append(x)
+        while (i < len(tmp3)):
+            hilfe = tmp3[i][type]
+            summe += hilfe
+            i += 1
+        avg = round(summe/len(tmp3), 2)    # Average Temperature Output
+
+        dict.update({"Max": max})
+        dict.update({"Min": min})
+        dict.update({"Avg": avg})
+
+        return dict
 
 
 @app.post("/register")
@@ -110,128 +140,28 @@ def getlatestData():
 @app.get("/data/get/temp")
 def getTemp():
     dict = {}
-
-    tmp1 = []
-    for x in dataC.find({"sensor": "BME680"}).sort("temp", pymongo.DESCENDING).limit(1):
-        tmp1.append(x)
-    max = round(tmp1[0]["temp"], 2)
-
-    tmp2 = []
-    for x in dataC.find({"sensor": "BME680"}).sort("temp", pymongo.ASCENDING).limit(1):
-        tmp2.append(x)
-    min = round(tmp2[0]["temp"], 2)
-
-    tmp3 = []
-    summe = 0
-    i = 0
-    for x in dataC.find({"sensor": "BME680"}):
-        tmp3.append(x)
-    while (i < len(tmp3)):
-        hilfe = tmp3[i]["temp"]
-        summe += hilfe
-        i += 1
-    avg = round(summe/len(tmp3), 2)    # Average Temperature Output
-
-    dict.update({"Max": max})
-    dict.update({"Min": min})
-    dict.update({"Avg": avg})
-
+    dict = Datahandler.getData("BME680", "temp")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/humi")
-def getHumi():
+def getPress():
     dict = {}
-
-    tmp1 = []
-    for x in dataC.find({"sensor": "BME680"}).sort("humi", pymongo.DESCENDING).limit(1):
-        tmp1.append(x)
-    max = round(tmp1[0]["humi"], 2)
-
-    tmp2 = []
-    for x in dataC.find({"sensor": "BME680"}).sort("humi", pymongo.ASCENDING).limit(1):
-        tmp2.append(x)
-    min = round(tmp2[0]["humi"], 2)
-
-    tmp3 = []
-    summe = 0
-    i = 0
-    for x in dataC.find({"sensor": "BME680"}):
-        tmp3.append(x)
-    while (i < len(tmp3)):
-        hilfe = tmp3[i]["humi"]
-        summe += hilfe
-        i += 1
-    avg = round(summe/len(tmp3), 2)    # Average Temperature Output
-
-    dict.update({"Max": max})
-    dict.update({"Min": min})
-    dict.update({"Avg": avg})
-
+    dict = Datahandler.getData("BME680", "humi")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/press")
 def getPress():
     dict = {}
-
-    tmp1 = []
-    for x in dataC.find({"sensor": "BME680"}).sort("press", pymongo.DESCENDING).limit(1):
-        tmp1.append(x)
-    max = round(tmp1[0]["press"], 2)
-
-    tmp2 = []
-    for x in dataC.find({"sensor": "BME680"}).sort("press", pymongo.ASCENDING).limit(1):
-        tmp2.append(x)
-    min = round(tmp2[0]["press"], 2)
-
-    tmp3 = []
-    summe = 0
-    i = 0
-    for x in dataC.find({"sensor": "BME680"}):
-        tmp3.append(x)
-    while (i < len(tmp3)):
-        hilfe = tmp3[i]["press"]
-        summe += hilfe
-        i += 1
-    avg = round(summe/len(tmp3), 2)    # Average Temperature Output
-
-    dict.update({"Max": max})
-    dict.update({"Min": min})
-    dict.update({"Avg": avg})
-
+    dict = Datahandler.getData("BME680", "press")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/power")
 def getPower():
     dict = {}
-
-    tmp1 = []
-    for x in dataC.find({"sensor": "CT-Sensor"}).sort("power", pymongo.DESCENDING).limit(1):
-        tmp1.append(x)
-    max = round(tmp1[0]["power"], 2)
-
-    tmp2 = []
-    for x in dataC.find({"sensor": "CT-Sensor"}).sort("power", pymongo.ASCENDING).limit(1):
-        tmp2.append(x)
-    min = round(tmp2[0]["power"], 2)
-
-    tmp3 = []
-    summe = 0
-    i = 0
-    for x in dataC.find({"sensor": "CT-Sensor"}):
-        tmp3.append(x)
-    while (i < len(tmp3)):
-        hilfe = tmp3[i]["power"]
-        summe += hilfe
-        i += 1
-    avg = round(summe/len(tmp3), 2)    # Average Temperature Output
-
-    dict.update({"Max": max})
-    dict.update({"Min": min})
-    dict.update({"Avg": avg})
-
+    dict = Datahandler.getData("CT-Sensor", "power")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
