@@ -1,10 +1,10 @@
 from os import stat
 import pymongo
-from fastapi import FastAPI, Body, HTTPException, status
+from fastapi import FastAPI, status, Depends
 from fastapi.responses import Response, JSONResponse
 from fastapi.encoders import jsonable_encoder
 from .auth import Authhandler
-from .schemas import AuthModel, DataModel
+from .models import AuthModel, DataModel
 
 url = "mongodb+srv://L0giX:21032004Mm@clusterdata.chvb5kd.mongodb.net/?retryWrites=true&w=majority"
 client = pymongo.MongoClient(url)
@@ -13,7 +13,6 @@ dataC = db["data"]
 profileC = db["profile"]
 
 app = FastAPI()
-
 auth_handler = Authhandler()
 
 
@@ -54,7 +53,7 @@ def register(req: AuthModel):
     if profileC.find_one({"username": req["username"]}):
         return Response(status_code=status.HTTP_400_BAD_REQUEST, content="Username bereits benutzt: [" + req["username"]+"]")
 
-    hashed_password = auth_handler.hash_password(req["password"])
+    hashed_password = auth_handler.get_password_hash(req["password"])
     req["password"] = hashed_password
     newData = profileC.insert_one(req)
     curData = profileC.find_one({"_id": newData.inserted_id})
@@ -64,14 +63,18 @@ def register(req: AuthModel):
 @app.post("/login")
 def login(req: AuthModel):
     tmp = []
-    user = None
+    user: str
+    token: str
     req = jsonable_encoder(req)
+    # Authenticate user and verify password
     if profileC.find_one({"username": req["username"]}):
         user = req["username"]
         for x in profileC.find({"username": user}):
             tmp.append(x)
         if auth_handler.verify_password(req["password"], tmp[0]["password"]):
-            return Response(status_code=status.HTTP_202_ACCEPTED, content="Profil verifiziert!")
+            token = auth_handler.encode_token(user)
+            out = auth_handler.decode_token(token)  # Test
+            return Response(status_code=status.HTTP_201_CREATED, content="Token: "+token+"\nUsername: " + out)
         else:
             return Response(status_code=status.HTTP_400_BAD_REQUEST, content="Passwort nicht korrekt!")
     else:
@@ -168,4 +171,10 @@ def getPower():
 @app.delete("/data/delete")
 def deleteData():
     x = dataC.delete_many({})
+    return Response(content=str(x.deleted_count)+" Dokumente gelöscht")
+
+
+@app.delete("/profile/delete")
+def deleteData():
+    x = profileC.delete_many({})
     return Response(content=str(x.deleted_count)+" Dokumente gelöscht")
