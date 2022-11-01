@@ -73,12 +73,22 @@ def login(req: AuthModel):
             tmp.append(x)
         if auth_handler.verify_password(req["password"], tmp[0]["password"]):
             token = auth_handler.encode_token(user)
-            out = auth_handler.decode_token(token)  # Test
-            return Response(status_code=status.HTTP_201_CREATED, content="Token: "+token+"\nUsername: " + out)
+            # out = auth_handler.decode_token(token)
+            return Response(status_code=status.HTTP_201_CREATED, content=token)
         else:
             return Response(status_code=status.HTTP_400_BAD_REQUEST, content="Passwort nicht korrekt!")
     else:
         return Response(status_code=status.HTTP_400_BAD_REQUEST, content="Username nicht registriert!")
+
+
+@app.get('/unprotected')
+def unprotected():
+    return {'hello': 'world'}
+
+
+@app.get("/protected")
+def protected(username=Depends(auth_handler.auth_wrapper)):
+    return {"name": username}
 
 
 @app.get("/profile/get")
