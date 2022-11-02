@@ -31,15 +31,13 @@ class AuthModel(BaseModel):
 
 
 class DataModel(BaseModel):
-    # automatically creates a MongoDB id for every post request
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    loc: str  # Küche / Wohnzimmer / Haus
-    sensor: str  # BME680 / CT-Sensor
+    loc: str
+    sensor: str
     temp: float
     humi: float
     press: float
     power: float
-    # automatically creates a timestamp for every post request
     timestamp: datetime = Field(default_factory=datetime.now)
 
     class Config:
