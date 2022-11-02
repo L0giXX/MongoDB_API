@@ -1,4 +1,3 @@
-from os import stat
 import pymongo
 from fastapi import FastAPI, status, Depends
 from fastapi.responses import Response, JSONResponse
@@ -38,7 +37,7 @@ class Datahandler():
             hilfe = tmp3[i][type]
             summe += hilfe
             i += 1
-        avg = round(summe/len(tmp3), 2)    # Average Temperature Output
+        avg = round(summe/len(tmp3), 2)
 
         dict.update({"Max": max})
         dict.update({"Min": min})
@@ -52,7 +51,6 @@ def register(req: AuthModel):
     req = jsonable_encoder(req)
     if profileC.find_one({"username": req["username"]}):
         return Response(status_code=status.HTTP_400_BAD_REQUEST, content="Username bereits benutzt: [" + req["username"]+"]")
-
     hashed_password = auth_handler.get_password_hash(req["password"])
     req["password"] = hashed_password
     newData = profileC.insert_one(req)
@@ -73,12 +71,11 @@ def login(req: AuthModel):
             tmp.append(x)
         if auth_handler.verify_password(req["password"], tmp[0]["password"]):
             token = auth_handler.encode_token(user)
-            # out = auth_handler.decode_token(token)
-            return Response(status_code=status.HTTP_201_CREATED, content=token)
+            return Response(status_code=status.HTTP_201_CREATED, content="Token: "+token)
         else:
-            return Response(status_code=status.HTTP_400_BAD_REQUEST, content="Passwort nicht korrekt!")
+            return Response(status_code=status.HTTP_401_UNAUTHORIZED, content="Passwort nicht korrekt!")
     else:
-        return Response(status_code=status.HTTP_400_BAD_REQUEST, content="Username nicht registriert!")
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED, content="Username nicht registriert!")
 
 
 @app.get('/unprotected')
@@ -87,7 +84,7 @@ def unprotected():
 
 
 @app.get("/protected")
-def protected(username=Depends(auth_handler.auth_wrapper)):
+def protected(username=Depends(auth_handler.auth_jwt)):
     return {"name": username}
 
 
