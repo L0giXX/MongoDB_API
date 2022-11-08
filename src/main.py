@@ -84,8 +84,8 @@ def unprotected():
 
 
 @app.get("/protected")
-def protected(username=Depends(auth_handler.auth_jwt)):
-    return {"name": username}
+def protected(username=Depends(auth_handler.auth_wrapper)):
+    return Response(status_code=status.HTTP_200_OK, content="Name: "+username)
 
 
 @app.get("/profile/get")
