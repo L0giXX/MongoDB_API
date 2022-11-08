@@ -19,9 +19,9 @@ class Authhandler():
     def encode_token(self, user):
         payload = {
             # expiration time
-            "exp": datetime.now + timedelta(days=0, minutes=5),
+            "exp": datetime.utcnow() + timedelta(days=0, minutes=5),
             # issued at
-            "iat": datetime.now,
+            "iat": datetime.utcnow(),
             # subject
             "sub": user
         }
@@ -36,5 +36,5 @@ class Authhandler():
         except jwt.InvalidTokenError:
             raise HTTPException(status_code=401, detail="Invalid token")
 
-    def auth_jwt(self, auth: HTTPAuthorizationCredentials = Security(security)):
+    def auth_wrapper(self, auth: HTTPAuthorizationCredentials = Security(security)):
         return self.decode_token(auth.credentials)
