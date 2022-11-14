@@ -4,3 +4,4 @@ refresh token
 -Docker
 docker build -t diplomimage docker
 docker run -d --name diplomtest -p 80:80 diplomimage
+docker save --output diplomimage.tar diplomimage
