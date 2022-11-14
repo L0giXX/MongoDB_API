@@ -15,7 +15,7 @@ app = FastAPI()
 auth_handler = AuthHandler()
 
 
-class Datahandler():
+class DataHandler():
     def getData(sensor, type):
         dict = {}
         tmp1 = []
@@ -150,28 +150,28 @@ def getlatestData():
 @app.get("/data/get/temp")
 def getTemp():
     dict = {}
-    dict = Datahandler.getData("BME680", "temp")
+    dict = DataHandler.getData("BME680", "temp")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/humi")
 def getPress():
     dict = {}
-    dict = Datahandler.getData("BME680", "humi")
+    dict = DataHandler.getData("BME680", "humi")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/press")
 def getPress():
     dict = {}
-    dict = Datahandler.getData("BME680", "press")
+    dict = DataHandler.getData("BME680", "press")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/power")
 def getPower():
     dict = {}
-    dict = Datahandler.getData("CT-Sensor", "power")
+    dict = DataHandler.getData("CT-Sensor", "power")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
