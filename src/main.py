@@ -2,7 +2,7 @@ import pymongo
 from fastapi import FastAPI, status, Depends
 from fastapi.responses import Response, JSONResponse
 from fastapi.encoders import jsonable_encoder
-from .auth import Authhandler
+from .auth import AuthHandler
 from .models import AuthModel, DataModel
 
 url = "mongodb+srv://L0giX:21032004Mm@clusterdata.chvb5kd.mongodb.net/?retryWrites=true&w=majority"
@@ -12,7 +12,7 @@ dataC = db["data"]
 profileC = db["profile"]
 
 app = FastAPI()
-auth_handler = Authhandler()
+auth_handler = AuthHandler()
 
 
 class Datahandler():
@@ -70,7 +70,7 @@ def login(req: AuthModel):
         for x in profileC.find({"username": user}):
             tmp.append(x)
         if auth_handler.verify_password(req["password"], tmp[0]["password"]):
-            token = auth_handler.encode_token(user)
+            token = auth_handler.encode_token(user, "access")
             return Response(status_code=status.HTTP_201_CREATED, content="Token: "+token)
         else:
             return Response(status_code=status.HTTP_401_UNAUTHORIZED, content="Passwort nicht korrekt!")
