@@ -4,9 +4,11 @@ from fastapi.responses import Response, JSONResponse
 from fastapi.encoders import jsonable_encoder
 from .auth import AuthHandler
 from .models import AuthModel, DataModel
+from dotenv import dotenv_values
 
-url = "mongodb+srv://L0giX:21032004Mm@clusterdata.chvb5kd.mongodb.net/?retryWrites=true&w=majority"
-client = pymongo.MongoClient(url)
+config = dotenv_values(".env")
+
+client = pymongo.MongoClient(config["MONGODB_URL"])
 db = client["ESP32DB"]
 dataC = db["data"]
 profileC = db["profile"]
@@ -15,7 +17,7 @@ app = FastAPI()
 auth_handler = AuthHandler()
 
 
-class Datahandler():
+class DataHandler():
     def getData(sensor, type):
         dict = {}
         tmp1 = []
@@ -150,28 +152,28 @@ def getlatestData():
 @app.get("/data/get/temp")
 def getTemp():
     dict = {}
-    dict = Datahandler.getData("BME680", "temp")
+    dict = DataHandler.getData("BME680", "temp")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/humi")
 def getPress():
     dict = {}
-    dict = Datahandler.getData("BME680", "humi")
+    dict = DataHandler.getData("BME680", "humi")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/press")
 def getPress():
     dict = {}
-    dict = Datahandler.getData("BME680", "press")
+    dict = DataHandler.getData("BME680", "press")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/power")
 def getPower():
     dict = {}
-    dict = Datahandler.getData("CT-Sensor", "power")
+    dict = DataHandler.getData("CT-Sensor", "power")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
