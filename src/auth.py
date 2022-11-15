@@ -3,12 +3,15 @@ from fastapi import HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
+from dotenv import dotenv_values
+
+config = dotenv_values("src/.env")
 
 
 class AuthHandler():
     security = HTTPBearer()
     ctx = CryptContext(schemes=["sha256_crypt"])
-    secret_key = "4aa771add5cf42f9ade97b260699172d6eb12efe9327a45621c0ac92c753c5d0"
+    secret_key = config["SECRET_KEY"]
 
     def get_password_hash(self, pwd):
         return self.ctx.hash(pwd)
