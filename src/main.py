@@ -4,9 +4,11 @@ from fastapi.responses import Response, JSONResponse
 from fastapi.encoders import jsonable_encoder
 from .auth import AuthHandler
 from .models import AuthModel, DataModel
+from dotenv import dotenv_values
 
-url = "mongodb+srv://L0giX:21032004Mm@clusterdata.chvb5kd.mongodb.net/?retryWrites=true&w=majority"
-client = pymongo.MongoClient(url)
+config = dotenv_values("src/.env")
+
+client = pymongo.MongoClient(config["MONGODB_URL"])
 db = client["ESP32DB"]
 dataC = db["data"]
 profileC = db["profile"]
