@@ -19,6 +19,14 @@ class AuthHandler():
     def verify_password(self, pwd, hashed_pwd):
         return self.ctx.verify(pwd, hashed_pwd)
 
+    def authenticate_user(self, db, user, pwd):
+        if db.find_one({"username": user}):
+            raise HTTPException(
+                status_code=400, detail="Username bereits vergeben")
+        else:
+            hashed_pwd = self.get_password_hash(pwd)
+            return hashed_pwd
+
     def encode_token(self, user):
         payload = {
             # issued at
@@ -26,7 +34,7 @@ class AuthHandler():
             # subject
             "sub": user,
             # expiration time
-            "exp": datetime.utcnow() + timedelta(minutes=2)
+            "exp": datetime.utcnow() + timedelta(minutes=30)
         }
         # Expiration time
         return jwt.encode(payload, self.secret_key, algorithm="HS256")
