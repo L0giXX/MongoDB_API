@@ -1,6 +1,6 @@
 import jwt
 from fastapi import HTTPException, Security
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from dotenv import dotenv_values
@@ -19,20 +19,16 @@ class AuthHandler():
     def verify_password(self, pwd, hashed_pwd):
         return self.ctx.verify(pwd, hashed_pwd)
 
-    def encode_token(self, user, type):
+    def encode_token(self, user):
         payload = {
             # issued at
             "iat": datetime.utcnow(),
             # subject
-            "sub": user
+            "sub": user,
+            # expiration time
+            "exp": datetime.utcnow() + timedelta(minutes=2)
         }
         # Expiration time
-        if type == "access":
-            payload.update({"exp": datetime.utcnow()+timedelta(minutes=5)})
-        elif type == "refresh":
-            payload.update({"exp": datetime.utcnow()+timedelta(hours=2)})
-        else:
-            raise HTTPException(status_code=401, detail="Invalid type")
         return jwt.encode(payload, self.secret_key, algorithm="HS256")
 
     def decode_token(self, token):
