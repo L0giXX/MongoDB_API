@@ -72,7 +72,7 @@ def login(req: AuthModel):
         for x in profileC.find({"username": user}):
             tmp.append(x)
         if auth_handler.verify_password(req["password"], tmp[0]["password"]):
-            token = auth_handler.encode_token(user, "access")
+            token = auth_handler.encode_token(user)
             return Response(status_code=status.HTTP_201_CREATED, content="Token: "+token)
         else:
             return Response(status_code=status.HTTP_401_UNAUTHORIZED, content="Passwort nicht korrekt!")
@@ -87,11 +87,11 @@ def unprotected():
 
 @app.get("/protected")
 def protected(username=Depends(auth_handler.auth_wrapper)):
-    return Response(status_code=status.HTTP_200_OK, content="Name: "+username)
+    return Response(status_code=status.HTTP_200_OK, content="Benutzer: "+username)
 
 
 @app.get("/profile/get")
-def getProfile():
+def getProfile(request=Depends(auth_handler.auth_wrapper)):
     tmp = []
     for x in profileC.find():
         tmp.append(x)
