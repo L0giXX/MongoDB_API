@@ -8,13 +8,14 @@ from dotenv import dotenv_values
 
 config = dotenv_values("src/.env")
 
+
 client = pymongo.MongoClient(config["MONGODB_URL"])
 db = client["ESP32DB"]
 dataC = db["data"]
 profileC = db["profile"]
 
 app = FastAPI()
-auth_handler = AuthHandler()
+Auth_Handler = AuthHandler()
 
 
 class DataHandler():
@@ -51,10 +52,8 @@ class DataHandler():
 @app.post("/register")
 def register(req: AuthModel):
     req = jsonable_encoder(req)
-    if profileC.find_one({"username": req["username"]}):
-        return Response(status_code=status.HTTP_400_BAD_REQUEST, content="Username bereits benutzt: [" + req["username"]+"]")
-    hashed_password = auth_handler.get_password_hash(req["password"])
-    req["password"] = hashed_password
+    req["password"] = Auth_Handler.authenticate_user(
+        profileC, req["username"], req["password"])
     newData = profileC.insert_one(req)
     curData = profileC.find_one({"_id": newData.inserted_id})
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=curData)
@@ -71,8 +70,8 @@ def login(req: AuthModel):
         user = req["username"]
         for x in profileC.find({"username": user}):
             tmp.append(x)
-        if auth_handler.verify_password(req["password"], tmp[0]["password"]):
-            token = auth_handler.encode_token(user)
+        if Auth_Handler.verify_password(req["password"], tmp[0]["password"]):
+            token = Auth_Handler.encode_token(user)
             return Response(status_code=status.HTTP_201_CREATED, content="Token: "+token)
         else:
             return Response(status_code=status.HTTP_401_UNAUTHORIZED, content="Passwort nicht korrekt!")
@@ -86,12 +85,12 @@ def unprotected():
 
 
 @app.get("/protected")
-def protected(username=Depends(auth_handler.auth_wrapper)):
+def protected(username=Depends(Auth_Handler.auth_wrapper)):
     return Response(status_code=status.HTTP_200_OK, content="Benutzer: "+username)
 
 
 @app.get("/profile/get")
-def getProfile(request=Depends(auth_handler.auth_wrapper)):
+def getProfile(request=Depends(Auth_Handler.auth_wrapper)):
     tmp = []
     for x in profileC.find():
         tmp.append(x)
@@ -115,7 +114,7 @@ def addData(req: DataModel):
         else:
             newData = dataC.insert_one(req)
             curData = dataC.find_one({"_id": newData.inserted_id})
-            return JSONResponse(status_code=status.HTTP_201_CREATED, content=curData)
+            return JSONResponse(status_code=201, content=curData)
 
     elif req["sensor"] == "CT-Sensor":
         req.pop("temp")     # delete key: temp
@@ -123,7 +122,7 @@ def addData(req: DataModel):
         req.pop("press")    # delete key: press
         newData = dataC.insert_one(req)
         curData = dataC.find_one({"_id": newData.inserted_id})
-        return JSONResponse(status_code=status.HTTP_201_CREATED, content=curData)
+        return JSONResponse(status_code=201, content=curData)
     else:
         return Response(content="Falscher Sensor! ["+req["sensor"])
 
