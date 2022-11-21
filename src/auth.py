@@ -1,6 +1,6 @@
 import jwt
-from fastapi import HTTPException, Security
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer
+from fastapi import HTTPException, Security, Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from dotenv import dotenv_values
@@ -9,7 +9,7 @@ config = dotenv_values("src/.env")
 
 
 class AuthHandler():
-    security = HTTPBearer()
+    oauth2 = OAuth2PasswordBearer(tokenUrl="login")
     ctx = CryptContext(schemes=["sha256_crypt"])
     secret_key = config["SECRET_KEY"]
 
@@ -26,6 +26,16 @@ class AuthHandler():
         else:
             hashed_pwd = self.get_password_hash(pwd)
             return hashed_pwd
+
+    def get_user(self, db, user):
+        tmp = []
+        if db.find_one({"username": user}):
+            for x in db.find({"username": user}):
+                tmp.append(x)
+            return tmp
+        else:
+            raise HTTPException(
+                status_code=400, detail="Username nicht vorhanden")
 
     def encode_token(self, user):
         payload = {
@@ -48,5 +58,5 @@ class AuthHandler():
         except jwt.InvalidTokenError:
             raise HTTPException(status_code=401, detail="Invalid token")
 
-    def auth_wrapper(self, auth: HTTPAuthorizationCredentials = Security(security)):
-        return self.decode_token(auth.credentials)
+    def auth_wrapper(self, token: str = Depends(oauth2)):
+        return self.decode_token(token)
