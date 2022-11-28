@@ -1,6 +1,6 @@
 import jwt
-from fastapi import HTTPException, Security, Depends
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import HTTPException, Depends
+from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from dotenv import dotenv_values
@@ -41,12 +41,11 @@ class AuthHandler():
         payload = {
             # issued at
             "iat": datetime.utcnow(),
-            # subject
-            "sub": user,
             # expiration time
-            "exp": datetime.utcnow() + timedelta(minutes=30)
+            "exp": datetime.utcnow() + timedelta(minutes=120),
+            # subject
+            "sub": user
         }
-        # Expiration time
         return jwt.encode(payload, self.secret_key, algorithm="HS256")
 
     def decode_token(self, token):
