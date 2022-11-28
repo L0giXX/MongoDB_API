@@ -1,17 +1,15 @@
 import jwt
+import os
 from fastapi import HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
-from dotenv import dotenv_values
-
-config = dotenv_values(".env")
 
 
 class AuthHandler():
     oauth2 = OAuth2PasswordBearer(tokenUrl="login")
     ctx = CryptContext(schemes=["sha256_crypt"])
-    secret_key = config["SECRET_KEY"]
+    secret_key = os.environ["SECRET_KEY"]
 
     def get_password_hash(self, pwd):
         return self.ctx.hash(pwd)
