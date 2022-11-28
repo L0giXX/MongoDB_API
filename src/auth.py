@@ -1,6 +1,6 @@
 import jwt
-from fastapi import HTTPException, Security, Depends
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import HTTPException, Depends
+from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from dotenv import dotenv_values
