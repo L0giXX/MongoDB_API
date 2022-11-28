@@ -7,7 +7,7 @@ from .auth import AuthHandler
 from .models import AuthModel, DataModel
 from dotenv import dotenv_values
 
-config = dotenv_values(".env")
+config = dotenv_values("src/.env")
 
 
 client = pymongo.MongoClient(config["MONGODB_URL"])
@@ -53,7 +53,6 @@ class DataHandler():
         dict.update({"Max": max})
         dict.update({"Min": min})
         dict.update({"Avg": avg})
-
         return dict
 
 
@@ -69,9 +68,9 @@ def register(req: AuthModel):
 
 @app.post("/login")
 def login(req: AuthModel):
+    req = jsonable_encoder(req)
     tmp = []
     token: str
-    req = jsonable_encoder(req)
     tmp = Auth_Handler.get_user(profileC, req["username"])
     if Auth_Handler.verify_password(req["password"], tmp[0]["password"]):
         token = Auth_Handler.encode_token(tmp[0]["username"])
@@ -86,8 +85,8 @@ def unprotected():
 
 
 @app.get("/protected")
-def protected(username=Depends(Auth_Handler.auth_wrapper)):
-    return Response(status_code=status.HTTP_200_OK, content="Benutzer: "+username)
+def protected(current_user: AuthModel = Depends(Auth_Handler.auth_wrapper)):
+    return Response(status_code=status.HTTP_200_OK, content="Benutzer: "+current_user)
 
 
 @app.get("/profile/get")
