@@ -1,10 +1,11 @@
-import pymongo
 import os
-from fastapi import FastAPI, status, Depends
+import pymongo
+from fastapi import FastAPI, status, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import Response, JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from .auth import AuthHandler
+from .auth import register_user, authenticate_user, create_access_token, get_current_active_user
 from .models import AuthModel, DataModel
 
 
@@ -21,7 +22,6 @@ app.add_middleware(
     allow_methods=[""],
     allow_headers=["*"],
 )
-Auth_Handler = AuthHandler()
 
 
 class DataHandler():
@@ -57,7 +57,7 @@ class DataHandler():
 @app.post("/register")
 def register(req: AuthModel):
     req = jsonable_encoder(req)
-    req["password"] = Auth_Handler.authenticate_user(
+    req["password"] = register_user(
         profileC, req["username"], req["password"])
     newData = profileC.insert_one(req)
     curData = profileC.find_one({"_id": newData.inserted_id})
@@ -65,30 +65,26 @@ def register(req: AuthModel):
 
 
 @app.post("/login")
-def login(req: AuthModel):
-    req = jsonable_encoder(req)
-    tmp = []
-    token: str
-    tmp = Auth_Handler.get_user(profileC, req["username"])
-    if Auth_Handler.verify_password(req["password"], tmp[0]["password"]):
-        token = Auth_Handler.encode_token(tmp[0]["username"])
-        return Response(status_code=status.HTTP_201_CREATED, content="Token: "+token)
-    else:
-        return Response(status_code=status.HTTP_401_UNAUTHORIZED, content="Passwort nicht korrekt!")
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = authenticate_user(
+        profileC, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token = create_access_token(user)
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.get('/unprotected')
-def unprotected():
-    return {'hello': 'world'}
-
-
-@app.get("/protected")
-def protected(current_user: AuthModel = Depends(Auth_Handler.auth_wrapper)):
-    return Response(status_code=status.HTTP_200_OK, content="Benutzer: "+current_user)
+@app.get("/user")
+def read_users_me(current_user: AuthModel = Depends(get_current_active_user)):
+    return current_user
 
 
 @app.get("/profile/get")
-def getProfile(request=Depends(Auth_Handler.auth_wrapper)):
+def getProfile():
     tmp = []
     for x in profileC.find():
         tmp.append(x)
