@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, EmailStr
 from datetime import datetime
 from bson import ObjectId
+from typing import Union
 
 
 class PyObjectId(ObjectId):
@@ -28,6 +29,19 @@ class AuthModel(BaseModel):
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
+
+
+class UserInDB(AuthModel):
+    hashed_password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: Union[str, None] = None
 
 
 class DataModel(BaseModel):
