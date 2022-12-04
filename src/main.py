@@ -1,11 +1,13 @@
 import pymongo
-from fastapi import FastAPI, status, Depends
+from fastapi import FastAPI, status, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import Response, JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from .auth import AuthHandler
-from .models import AuthModel, DataModel
+from .models import AuthModel, DataModel, Token
 from dotenv import dotenv_values
+from .oauth2 import authenticate_user, create_access_token, get_current_active_user
 
 config = dotenv_values("src/.env")
 
@@ -77,6 +79,25 @@ def login(req: AuthModel):
         return Response(status_code=status.HTTP_201_CREATED, content="Token: "+token)
     else:
         return Response(status_code=status.HTTP_401_UNAUTHORIZED, content="Passwort nicht korrekt!")
+
+
+@app.post("/token")
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = authenticate_user(
+        profileC, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token = create_access_token(user)
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@app.get("/user", response_model=AuthModel)
+async def read_users_me(current_user: AuthModel = Depends(get_current_active_user)):
+    return current_user
 
 
 @app.get('/unprotected')
