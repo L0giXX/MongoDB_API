@@ -10,7 +10,7 @@ from .models import AuthModel
 oauth2 = OAuth2PasswordBearer(tokenUrl="login")
 ctx = CryptContext(schemes=["sha256_crypt"])
 secret_key = os.environ["SECRET_KEY"]
-ALGORITHM = "HS256"
+algo = os.environ["ALGORITHM"]
 
 
 def verify_password(plain_password, hashed_password):
@@ -30,20 +30,20 @@ def register_user(db, user, pwd):
         return hashed_pwd
 
 
-def get_user(db, username):
+def get_user(db, user):
     tmp = []
-    if db.find_one({"username": username}):
-        for x in db.find({"username": username}):
+    if db.find_one({"username": user}):
+        for x in db.find({"username": user}):
             tmp.append(x)
         return tmp[0]["username"]
     else:
         return None
 
 
-def authenticate_user(db, username, password):
+def authenticate_user(db, user, password):
     tmp = []
-    if db.find_one({"username": username}):
-        for x in db.find({"username": username}):
+    if db.find_one({"username": user}):
+        for x in db.find({"username": user}):
             tmp.append(x)
     else:
         return False
@@ -55,17 +55,16 @@ def authenticate_user(db, username, password):
         return tmp[0]["username"]
 
 
-def create_access_token(username):
+def create_access_token(user):
     payload = {
         # issued at
         "iat": datetime.utcnow(),
         # expiration time
         "exp": datetime.utcnow() + timedelta(minutes=120),
         # subject
-        "sub": username
+        "sub": user
     }
-    encoded_jwt = jwt.encode(
-        payload, secret_key, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(payload, secret_key, algorithm=algo)
     return encoded_jwt
 
 
@@ -76,12 +75,12 @@ def get_current_user(token: str = Depends(oauth2)):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, secret_key, algorithms=[ALGORITHM])
-        username = payload.get("sub")
-        if username is None:
+        payload = jwt.decode(token, secret_key, algorithms=[algo])
+        user = payload.get("sub")
+        if user is None:
             raise credentials_exception
         else:
-            return username
+            return user
     except JWTError:
         raise credentials_exception
 
