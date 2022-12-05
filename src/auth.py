@@ -12,7 +12,7 @@ config = dotenv_values("src/.env")
 oauth2 = OAuth2PasswordBearer(tokenUrl="login")
 ctx = CryptContext(schemes=["sha256_crypt"])
 secret_key = config["SECRET_KEY"]
-algo = config["ALGORITHM"]
+ALGORITHM = "HS256"
 
 
 def verify_password(plain_password, hashed_password):
@@ -66,7 +66,8 @@ def create_access_token(user):
         # subject
         "sub": user
     }
-    encoded_jwt = jwt.encode(payload, secret_key, algorithm=algo)
+    encoded_jwt = jwt.encode(
+        payload, secret_key, algorithm=ALGORITHM)
     return encoded_jwt
 
 
@@ -77,7 +78,7 @@ def get_current_user(token: str = Depends(oauth2)):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, secret_key, algorithms=[algo])
+        payload = jwt.decode(token, secret_key, algorithms=[ALGORITHM])
         user = payload.get("sub")
         if user is None:
             raise credentials_exception
