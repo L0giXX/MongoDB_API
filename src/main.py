@@ -19,9 +19,9 @@ profileC = db["profile"]
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[""],
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=[""],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
@@ -59,8 +59,7 @@ class DataHandler():
 @app.post("/register")
 def register(req: AuthModel):
     req = jsonable_encoder(req)
-    req["password"] = register_user(
-        profileC, req["username"], req["password"])
+    req["password"] = register_user(profileC, req["username"], req["password"])
     newData = profileC.insert_one(req)
     curData = profileC.find_one({"_id": newData.inserted_id})
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=curData)
