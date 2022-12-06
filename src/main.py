@@ -27,6 +27,7 @@ app.add_middleware(
 
 
 class DataHandler():
+    # Hilfsfunkion um Max, Min, Average Wert zu erhalten
     def getData(sensor, type):
         dict = {}
         tmp1 = []
