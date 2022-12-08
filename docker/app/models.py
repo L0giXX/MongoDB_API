@@ -1,9 +1,10 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field
 from datetime import datetime
 from bson import ObjectId
 
 
 class PyObjectId(ObjectId):
+    # class for MongoDB ID
     @classmethod
     def __get_validators__(cls):
         yield cls.validate
@@ -17,6 +18,20 @@ class PyObjectId(ObjectId):
     @classmethod
     def __modify_schema__(cls, field_schema):
         field_schema.update(type="string")
+
+
+class RegModel(BaseModel):
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    username: str
+    name: str
+    surname: str
+    email: str
+    password: str
+
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
 
 
 class AuthModel(BaseModel):
