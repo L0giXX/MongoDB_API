@@ -5,7 +5,7 @@ from fastapi.responses import Response, JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from .auth import register_user, authenticate_user, create_access_token, get_current_active_user
-from .models import AuthModel, DataModel
+from .models import RegModel, AuthModel, DataModel
 from dotenv import dotenv_values
 
 config = dotenv_values("src/.env")
@@ -58,9 +58,10 @@ class DataHandler():
 
 
 @app.post("/register")
-def register(req: AuthModel):
+def register(req: RegModel):
     req = jsonable_encoder(req)
-    req["password"] = register_user(profileC, req["username"], req["password"])
+    req["password"] = register_user(
+        profileC, req["username"], req["email"], req["password"])
     newData = profileC.insert_one(req)
     curData = profileC.find_one({"_id": newData.inserted_id})
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=curData)
