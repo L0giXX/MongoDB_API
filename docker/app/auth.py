@@ -4,6 +4,7 @@ from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
+from email_validator import validate_email, EmailNotValidError
 from .models import AuthModel
 
 
@@ -21,12 +22,19 @@ def get_password_hash(password):
     return ctx.hash(password)
 
 
-def register_user(db, user, pwd):
+def register_user(db, user, email, password):
     if db.find_one({"username": user}):
         raise HTTPException(
             status_code=400, detail="Username bereits vergeben")
+    if db.find_one({"email": email}):
+        raise HTTPException(
+            status_code=400, detail="Email bereits vergeben")
+    try:
+        validate_email(email, check_deliverability=True)
+    except EmailNotValidError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     else:
-        hashed_pwd = get_password_hash(pwd)
+        hashed_pwd = get_password_hash(password)
         return hashed_pwd
 
 
