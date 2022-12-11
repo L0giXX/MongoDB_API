@@ -25,32 +25,53 @@ app.add_middleware(
 
 
 class DataHandler():
-    def getData(sensor, type):
+    # Hilfsfunkion um Max, Min, Average, Latest (ggf. Location Eingabe) Wert zu erhalten
+    def getData(loc, sensor, type):
         dict = {}
         tmp1 = []
-        for x in dataC.find({"sensor": sensor}).sort(type, pymongo.DESCENDING).limit(1):
-            tmp1.append(x)
+        if loc == None:
+            for x in dataC.find({"sensor": sensor}).sort(type, pymongo.DESCENDING).limit(1):
+                tmp1.append(x)
+        else:
+            for x in dataC.find({"loc": loc, "sensor": sensor}).sort(type, pymongo.DESCENDING).limit(1):
+                tmp1.append(x)
         max = round(tmp1[0][type], 2)
 
         tmp2 = []
-        for x in dataC.find({"sensor": sensor}).sort(type, pymongo.ASCENDING).limit(1):
-            tmp2.append(x)
+        if loc == None:
+            for x in dataC.find({"sensor": sensor}).sort(type, pymongo.ASCENDING).limit(1):
+                tmp2.append(x)
+        else:
+            for x in dataC.find({"loc": loc, "sensor": sensor}).sort(type, pymongo.ASCENDING).limit(1):
+                tmp2.append(x)
         min = round(tmp2[0][type], 2)
 
         tmp3 = []
         summe = 0
         i = 0
-        for x in dataC.find({"sensor": sensor}):
-            tmp3.append(x)
+        if loc == None:
+            for x in dataC.find({"sensor": sensor}):
+                tmp3.append(x)
+        else:
+            for x in dataC.find({"loc": loc, "sensor": sensor}):
+                tmp3.append(x)
         while (i < len(tmp3)):
             hilfe = tmp3[i][type]
             summe += hilfe
             i += 1
         avg = round(summe/len(tmp3), 2)
 
+        tmp4 = []
+        if loc == None:
+            for x in dataC.find({"sensor": sensor}):
+                tmp4.append(x)
+        else:
+            for x in dataC.find({"loc": loc, "sensor": sensor}):
+                tmp4.append(x)
         dict.update({"Max": max})
         dict.update({"Min": min})
         dict.update({"Avg": avg})
+        dict.update({"Latest": tmp4[-1][type]})
         return dict
 
 
@@ -138,47 +159,73 @@ def getallData():
     return JSONResponse(status_code=status.HTTP_200_OK, content=tmp)
 
 
-@app.get("/data/get/latest/air")
-def getlatestData():
-    tmp = []
-    for x in dataC.find({"sensor": "BME680"}):
-        tmp.append(x)
-    return JSONResponse(status_code=status.HTTP_200_OK, content=tmp[-1])
-
-
-@app.get("/data/get/latest/power")
-def getlatestData():
-    tmp = []
-    for x in dataC.find({"sensor": "CT-Sensor"}):
-        tmp.append(x)
-    return JSONResponse(status_code=status.HTTP_200_OK, content=tmp[-1])
-
-
 @app.get("/data/get/temp")
 def getTemp():
     dict = {}
-    dict = DataHandler.getData("BME680", "temp")
+    dict = DataHandler.getData(None, "BME680", "temp")
+    return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
+
+
+@app.get("/data/get/temp/kitchen")
+def getTemp():
+    dict = {}
+    dict = DataHandler.getData("Kitchen", "BME680", "temp")
+    return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
+
+
+@app.get("/data/get/temp/bedroom")
+def getTemp():
+    dict = {}
+    dict = DataHandler.getData("Bedroom", "BME680", "temp")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/humi")
 def getPress():
     dict = {}
-    dict = DataHandler.getData("BME680", "humi")
+    dict = DataHandler.getData(None, "BME680", "humi")
+    return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
+
+
+@app.get("/data/get/humi/kitchen")
+def getTemp():
+    dict = {}
+    dict = DataHandler.getData("Kitchen", "BME680", "humi")
+    return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
+
+
+@app.get("/data/get/humi/bedroom")
+def getTemp():
+    dict = {}
+    dict = DataHandler.getData("Bedroom", "BME680", "humi")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/press")
 def getPress():
     dict = {}
-    dict = DataHandler.getData("BME680", "press")
+    dict = DataHandler.getData(None, "BME680", "press")
+    return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
+
+
+@app.get("/data/get/press/kitchen")
+def getTemp():
+    dict = {}
+    dict = DataHandler.getData("Kitchen", "BME680", "press")
+    return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
+
+
+@app.get("/data/get/press/bedroom")
+def getTemp():
+    dict = {}
+    dict = DataHandler.getData("Bedroom", "BME680", "press")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/power")
 def getPower():
     dict = {}
-    dict = DataHandler.getData("CT-Sensor", "power")
+    dict = DataHandler.getData(None, "CT-Sensor", "power")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
