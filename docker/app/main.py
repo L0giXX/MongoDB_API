@@ -29,6 +29,10 @@ class DataHandler():
     def getData(loc, sensor, type):
         dict = {}
         tmp1 = []
+        if not dataC.find_one({"loc": loc}):
+            raise HTTPException(
+                status_code=400, detail="No entries for this location")
+
         if loc == None:
             for x in dataC.find({"sensor": sensor}).sort(type, pymongo.DESCENDING).limit(1):
                 tmp1.append(x)
