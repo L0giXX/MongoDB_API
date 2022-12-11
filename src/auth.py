@@ -27,10 +27,10 @@ def get_password_hash(password):
 def register_user(db, user, email, password):
     if db.find_one({"username": user}):
         raise HTTPException(
-            status_code=400, detail="Username bereits vergeben")
+            status_code=400, detail="Username already taken")
     if db.find_one({"email": email}):
         raise HTTPException(
-            status_code=400, detail="Email bereits vergeben")
+            status_code=400, detail="Email already taken")
     try:
         validate_email(email, check_deliverability=True)
     except EmailNotValidError as e:
