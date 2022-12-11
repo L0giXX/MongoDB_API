@@ -2,7 +2,6 @@ pymongo[all]==4.2.0
 uvicorn==0.18.3
 fastapi[all]==0.85.0
 pydantic==1.10.2
-pyjwt==2.6.0
 passlib==1.7.4
 python-dotenv==0.21.0
 python-jose[cryptography]==3.3.0
