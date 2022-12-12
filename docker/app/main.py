@@ -45,12 +45,12 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = create_access_token(user)
-    return {"access_token": access_token, "token_type": "bearer"}
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": access_token, "token_type": "bearer"})
 
 
 @app.get("/user")
 def read_users_me(current_user: AuthModel = Depends(get_current_active_user)):
-    return current_user
+    return Response(status_code=status.HTTP_200_OK, content=current_user)
 
 
 @app.get("/profile/get")
