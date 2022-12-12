@@ -36,14 +36,7 @@ def register(req: RegModel):
 
 @app.post("/login")
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(
-        profileC, form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    user = authenticate_user(profileC, form_data.username, form_data.password)
     access_token = create_access_token(user)
     return JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": access_token, "token_type": "bearer"})
 
