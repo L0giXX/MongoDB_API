@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from datetime import datetime
+from datetime import datetime, timedelta
 from bson import ObjectId
 
 
@@ -53,7 +53,8 @@ class DataModel(BaseModel):
     humi: float
     press: float
     power: float
-    timestamp: datetime = Field(default_factory=datetime.now)
+    timestamp: datetime = Field(default_factory=lambda: (
+        datetime.utcnow()+timedelta(hours=1)))
 
     class Config:
         allow_population_by_field_name = True
