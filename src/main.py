@@ -4,6 +4,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import Response, JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
+from .data import DataHandler
 from .auth import register_user, authenticate_user, create_access_token, get_current_active_user
 from .models import RegModel, AuthModel, DataModel
 from dotenv import dotenv_values
@@ -24,61 +25,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-class DataHandler():
-    # Hilfsfunkion um Max, Min, Average, Latest (ggf. Location Eingabe) Wert zu erhalten
-    def getData(loc, sensor, type):
-        dict = {}
-        tmp1 = []
-        if not dataC.find_one({"loc": loc}):
-            raise HTTPException(
-                status_code=400, detail="No entries for this location")
-
-        if loc == None:
-            for x in dataC.find({"sensor": sensor}).sort(type, pymongo.DESCENDING).limit(1):
-                tmp1.append(x)
-        else:
-            for x in dataC.find({"loc": loc, "sensor": sensor}).sort(type, pymongo.DESCENDING).limit(1):
-                tmp1.append(x)
-        max = round(tmp1[0][type], 2)
-
-        tmp2 = []
-        if loc == None:
-            for x in dataC.find({"sensor": sensor}).sort(type, pymongo.ASCENDING).limit(1):
-                tmp2.append(x)
-        else:
-            for x in dataC.find({"loc": loc, "sensor": sensor}).sort(type, pymongo.ASCENDING).limit(1):
-                tmp2.append(x)
-        min = round(tmp2[0][type], 2)
-
-        tmp3 = []
-        summe = 0
-        i = 0
-        if loc == None:
-            for x in dataC.find({"sensor": sensor}):
-                tmp3.append(x)
-        else:
-            for x in dataC.find({"loc": loc, "sensor": sensor}):
-                tmp3.append(x)
-        while (i < len(tmp3)):
-            hilfe = tmp3[i][type]
-            summe += hilfe
-            i += 1
-        avg = round(summe/len(tmp3), 2)
-
-        tmp4 = []
-        if loc == None:
-            for x in dataC.find({"sensor": sensor}):
-                tmp4.append(x)
-        else:
-            for x in dataC.find({"loc": loc, "sensor": sensor}):
-                tmp4.append(x)
-        dict.update({"Max": max})
-        dict.update({"Min": min})
-        dict.update({"Avg": avg})
-        dict.update({"Latest": tmp4[-1][type]})
-        return dict
 
 
 @app.post("/register")
@@ -111,7 +57,7 @@ def read_users_me(current_user: AuthModel = Depends(get_current_active_user)):
 
 
 @app.get("/profile/get")
-def getProfile():
+def get_profile():
     tmp = []
     for x in profileC.find():
         tmp.append(x)
@@ -119,37 +65,10 @@ def getProfile():
 
 
 @app.post("/data/add")
-def addData(req: DataModel):
+def add_data(req: DataModel):
     req = jsonable_encoder(req)
-    if req["sensor"] == "BME680":
-        req["temp"] = round(req["temp"], 2)
-        req["humi"] = round(req["humi"], 2)
-        req["press"] = round(req["press"], 2)
-        req.pop("power")
-        if req["temp"] < -20 or req["temp"] > 50:
-            return Response(content="Keine normalen Temperaturen gemessen: [" + str(req["temp"])+"]")
-
-        elif req["humi"] < 20 or req["humi"] > 70:
-            return Response(content="Keine normale Luftfeuchtigkeit gemessen: [" + str(req["humi"])+"]")
-
-        elif req["press"] < 0 or req["press"] > 1.5:
-            return Response(content="Keinen normalen Druck gemessen: [" + str(req["press"])+"]")
-
-        else:
-            newData = dataC.insert_one(req)
-            curData = dataC.find_one({"_id": newData.inserted_id})
-            return JSONResponse(status_code=201, content=curData)
-
-    elif req["sensor"] == "CT-Sensor":
-        req["power"] = round(req["power"], 2)
-        req.pop("temp")
-        req.pop("humi")
-        req.pop("press")
-        newData = dataC.insert_one(req)
-        curData = dataC.find_one({"_id": newData.inserted_id})
-        return JSONResponse(status_code=201, content=curData)
-    else:
-        return Response(content="Falscher Sensor! ["+req["sensor"])
+    data = DataHandler.add_data(dataC, req)
+    return JSONResponse(status_code=status.HTTP_200_OK, content=data)
 
 
 @app.get("/")
@@ -166,82 +85,82 @@ def getallData():
 
 
 @app.get("/data/get/temp")
-def getTemp():
+def get_temp():
     dict = {}
-    dict = DataHandler.getData(None, "BME680", "temp")
+    dict = DataHandler.get_data(dataC, None, "BME680", "temp")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/temp/kitchen")
-def getTemp():
+def get_temp():
     dict = {}
-    dict = DataHandler.getData("Kitchen", "BME680", "temp")
+    dict = DataHandler.get_data(dataC, "Kitchen", "BME680", "temp")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/temp/bedroom")
-def getTemp():
+def get_temp():
     dict = {}
-    dict = DataHandler.getData("Bedroom", "BME680", "temp")
+    dict = DataHandler.get_data(dataC, "Bedroom", "BME680", "temp")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/humi")
-def getPress():
+def get_humi():
     dict = {}
-    dict = DataHandler.getData(None, "BME680", "humi")
+    dict = DataHandler.get_data(dataC, None, "BME680", "humi")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/humi/kitchen")
-def getTemp():
+def get_humi():
     dict = {}
-    dict = DataHandler.getData("Kitchen", "BME680", "humi")
+    dict = DataHandler.get_data(dataC, "Kitchen", "BME680", "humi")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/humi/bedroom")
-def getTemp():
+def get_humi():
     dict = {}
-    dict = DataHandler.getData("Bedroom", "BME680", "humi")
+    dict = DataHandler.get_data(dataC, "Bedroom", "BME680", "humi")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/press")
-def getPress():
+def get_press():
     dict = {}
-    dict = DataHandler.getData(None, "BME680", "press")
+    dict = DataHandler.get_data(dataC, None, "BME680", "press")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/press/kitchen")
-def getTemp():
+def get_press():
     dict = {}
-    dict = DataHandler.getData("Kitchen", "BME680", "press")
+    dict = DataHandler.get_data(dataC, "Kitchen", "BME680", "press")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/press/bedroom")
-def getTemp():
+def get_press():
     dict = {}
-    dict = DataHandler.getData("Bedroom", "BME680", "press")
+    dict = DataHandler.get_data(dataC, "Bedroom", "BME680", "press")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/power")
-def getPower():
+def get_power():
     dict = {}
-    dict = DataHandler.getData(None, "CT-Sensor", "power")
+    dict = DataHandler.get_data(dataC, None, "CT-Sensor", "power")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.delete("/data/delete")
-def deleteData():
+def delete_data():
     x = dataC.delete_many({})
     return Response(content=str(x.deleted_count)+" Dokumente gelöscht")
 
 
 @app.delete("/profile/delete")
-def deleteData():
+def delete_data():
     x = profileC.delete_many({})
     return Response(content=str(x.deleted_count)+" Dokumente gelöscht")
