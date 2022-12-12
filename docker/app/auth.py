@@ -68,10 +68,10 @@ def authenticate_user(db, user, password):
 
 def create_access_token(user):
     payload = {
-        # issued at
-        "iat": datetime.utcnow(),
-        # expiration time
-        "exp": datetime.utcnow() + timedelta(minutes=120),
+        # issued at (CET)
+        "iat": datetime.utcnow() + timedelta(hours=1),
+        # expiration time (CET+2h)
+        "exp": datetime.utcnow() + timedelta(hours=1) + timedelta(hours=2),
         # subject
         "sub": user
     }
