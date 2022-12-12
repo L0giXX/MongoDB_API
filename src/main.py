@@ -33,7 +33,7 @@ def register(req: RegModel):
     req["password"] = register_user(profileC, req)
     newData = profileC.insert_one(req)
     curData = profileC.find_one({"_id": newData.inserted_id})
-    return JSONResponse(status_code=status.HTTP_201_CREATED, content=curData)
+    return JSONResponse(status_code=status.HTTP_200_OK, content=curData)
 
 
 @app.post("/login")
@@ -47,12 +47,12 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = create_access_token(user)
-    return {"access_token": access_token, "token_type": "bearer"}
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": access_token, "token_type": "bearer"})
 
 
 @app.get("/user")
 def read_users_me(current_user: AuthModel = Depends(get_current_active_user)):
-    return current_user
+    return Response(status_code=status.HTTP_200_OK, content=current_user)
 
 
 @app.get("/profile/get")
@@ -76,7 +76,7 @@ def root():
 
 
 @app.get("/data/get")
-def getallData():
+def get_all_data():
     tmp = []
     for x in dataC.find():
         tmp.append(x)
