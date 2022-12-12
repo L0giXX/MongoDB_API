@@ -28,8 +28,7 @@ app.add_middleware(
 @app.post("/register")
 def register(req: RegModel):
     req = jsonable_encoder(req)
-    req["password"] = register_user(
-        profileC, req["username"], req["email"], req["password"])
+    req["password"] = register_user(profileC, req)
     newData = profileC.insert_one(req)
     curData = profileC.find_one({"_id": newData.inserted_id})
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=curData)
