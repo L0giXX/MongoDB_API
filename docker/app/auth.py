@@ -50,15 +50,20 @@ def get_user(db, user):
 
 def authenticate_user(db, user, password):
     tmp = []
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Incorrect username or password",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     if db.find_one({"username": user}):
         for x in db.find({"username": user}):
             tmp.append(x)
     else:
-        return False
+        raise credentials_exception
     if not tmp[0]["password"]:
-        return False
+        raise credentials_exception
     if not verify_password(password, tmp[0]["password"]):
-        return False
+        raise credentials_exception
     else:
         return tmp[0]["username"]
 
