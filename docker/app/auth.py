@@ -22,19 +22,19 @@ def get_password_hash(password):
     return ctx.hash(password)
 
 
-def register_user(db, user, email, password):
-    if db.find_one({"username": user}):
+def register_user(db, data):
+    if db.find_one({"username": data["username"]}):
         raise HTTPException(
-            status_code=400, detail="Username bereits vergeben")
-    if db.find_one({"email": email}):
+            status_code=400, detail="Username already taken")
+    if db.find_one({"email": data["email"]}):
         raise HTTPException(
-            status_code=400, detail="Email bereits vergeben")
+            status_code=400, detail="Email already taken")
     try:
-        validate_email(email, check_deliverability=True)
+        validate_email(data["email"], check_deliverability=True)
     except EmailNotValidError as e:
         raise HTTPException(status_code=400, detail=str(e))
     else:
-        hashed_pwd = get_password_hash(password)
+        hashed_pwd = get_password_hash(data["password"])
         return hashed_pwd
 
 
