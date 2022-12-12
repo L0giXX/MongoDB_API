@@ -60,8 +60,6 @@ def authenticate_user(db, user, password):
             tmp.append(x)
     else:
         raise credentials_exception
-    if not tmp[0]["password"]:
-        raise credentials_exception
     if not verify_password(password, tmp[0]["password"]):
         raise credentials_exception
     else:
