@@ -37,7 +37,7 @@ def register(req: RegModel):
 
 
 @app.post("/login")
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(profileC, form_data.username, form_data.password)
     access_token = create_access_token(user)
     tmp = JSONResponse(status_code=status.HTTP_200_OK, content={
