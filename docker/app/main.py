@@ -154,6 +154,6 @@ def delete_data():
 
 
 @app.delete("/profile/delete")
-def delete_data():
+def delete_profile():
     x = profileC.delete_many({})
     return Response(content=str(x.deleted_count)+" Dokumente gelöscht")
