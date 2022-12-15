@@ -38,7 +38,10 @@ def register(req: RegModel):
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(profileC, form_data.username, form_data.password)
     access_token = create_access_token(user)
-    return JSONResponse(status_code=status.HTTP_200_OK, content={"access_token": access_token, "token_type": "bearer"})
+    tmp = JSONResponse(status_code=status.HTTP_200_OK, content={
+                       "access_token": access_token, "token_type": "bearer"})
+    tmp.headers["Access-Control-Allow-Origin"] = "*"
+    return tmp
 
 
 @app.get("/user")
