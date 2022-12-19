@@ -45,6 +45,10 @@ class AuthModel(BaseModel):
         json_encoders = {ObjectId: str}
 
 
+class AuthPW(BaseModel):
+    password: str
+
+
 class DataModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     loc: str
