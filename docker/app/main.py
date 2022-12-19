@@ -6,8 +6,8 @@ from fastapi.responses import Response, JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from .data import DataHandler
-from .auth import register_user, authenticate_user, create_access_token, get_current_active_user
-from .models import RegModel, AuthModel, DataModel
+from .auth import *
+from .models import RegModel, AuthModel, DataModel, AuthPW
 
 
 client = pymongo.MongoClient(os.environ["MONGODB_URL"])
@@ -31,7 +31,7 @@ def register(req: RegModel):
     req["password"] = register_user(profileC, req)
     newData = profileC.insert_one(req)
     curData = profileC.find_one({"_id": newData.inserted_id})
-    return JSONResponse(status_code=status.HTTP_201_CREATED, content=curData)
+    return JSONResponse(status_code=status.HTTP_200_OK, content=curData)
 
 
 @app.post("/login")
@@ -44,9 +44,21 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return tmp
 
 
-@app.get("/user")
+@app.get("/user/me")
 def read_users_me(current_user: AuthModel = Depends(get_current_active_user)):
     return Response(status_code=status.HTTP_200_OK, content=current_user)
+
+
+@app.post("/user/password")
+def change_password(req: AuthPW, current_user: AuthModel = Depends(get_current_active_user)):
+    tmp = []
+    req = jsonable_encoder(req)
+    hashed_pw = get_password_hash(req["password"])
+    filter = {"username": current_user}
+    profileC.update_one(filter, {"$set": {"password": hashed_pw}})
+    for x in profileC.find(filter):
+        tmp.append(x)
+    return JSONResponse(status_code=status.HTTP_200_OK, content=tmp)
 
 
 @app.get("/profile/get")
@@ -70,7 +82,7 @@ def root():
 
 
 @app.get("/data/get")
-def getallData():
+def get_all_data():
     tmp = []
     for x in dataC.find():
         tmp.append(x)
