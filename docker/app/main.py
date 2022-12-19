@@ -7,7 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from .data import DataHandler
 from .auth import *
-from .models import RegModel, AuthModel, DataModel, AuthPW
+from .models import RegModel, AuthModel, DataModel
 
 
 client = pymongo.MongoClient(os.environ["MONGODB_URL"])
