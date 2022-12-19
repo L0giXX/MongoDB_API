@@ -5,12 +5,11 @@ from fastapi.responses import Response, JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from .data import DataHandler
-from .auth import register_user, authenticate_user, create_access_token, get_current_active_user
+from .auth import *
 from .models import RegModel, AuthModel, DataModel, AuthPW
 from dotenv import dotenv_values
 
 config = dotenv_values("src/.env")
-
 
 client = pymongo.MongoClient(config["MONGODB_URL"])
 db = client["ESP32DB"]
@@ -52,14 +51,14 @@ def read_users_me(current_user: AuthModel = Depends(get_current_active_user)):
 
 
 @app.post("/user/password")
-def change_password(password: AuthPW, current_user: AuthModel = Depends(get_current_active_user)):
-    password = jsonable_encoder(password)
+def change_password(req: AuthPW, current_user: AuthModel = Depends(get_current_active_user)):
     tmp = []
+    req = jsonable_encoder(req)
+    hashed_pw = get_password_hash(req["password"])
     filter = {"username": current_user}
-    new_pw = {"$set": {"password": password}}
-    profileC.update_one(filter, new_pw)
+    profileC.update_one(filter, {"$set": {"password": hashed_pw}})
     for x in profileC.find(filter):
-        tmp.append(x)  # hash new password
+        tmp.append(x)
     return JSONResponse(status_code=status.HTTP_200_OK, content=tmp)
 
 
