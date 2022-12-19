@@ -6,7 +6,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from .data import DataHandler
 from .auth import *
-from .models import RegModel, AuthModel, DataModel, AuthPW
+from .models import RegModel, AuthModel, DataModel
 from dotenv import dotenv_values
 
 config = dotenv_values("src/.env")
@@ -51,10 +51,10 @@ def read_users_me(current_user: AuthModel = Depends(get_current_active_user)):
 
 
 @app.post("/user/password")
-def password(req: AuthPW, current_user: AuthModel = Depends(get_current_active_user)):
+def password(req: AuthModel):
     tmp = []
     req = jsonable_encoder(req)
-    tmp = change_password(profileC, current_user, req["password"])
+    tmp = change_password(profileC, req["username"], req["password"])
     return JSONResponse(status_code=status.HTTP_200_OK, content=tmp)
 
 
