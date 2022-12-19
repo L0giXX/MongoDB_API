@@ -50,14 +50,10 @@ def read_users_me(current_user: AuthModel = Depends(get_current_active_user)):
 
 
 @app.post("/user/password")
-def change_password(req: AuthPW, current_user: AuthModel = Depends(get_current_active_user)):
+def password(req: AuthPW, current_user: AuthModel = Depends(get_current_active_user)):
     tmp = []
     req = jsonable_encoder(req)
-    hashed_pw = get_password_hash(req["password"])
-    filter = {"username": current_user}
-    profileC.update_one(filter, {"$set": {"password": hashed_pw}})
-    for x in profileC.find(filter):
-        tmp.append(x)
+    tmp = change_password(profileC, current_user, req["password"])
     return JSONResponse(status_code=status.HTTP_200_OK, content=tmp)
 
 
