@@ -103,9 +103,13 @@ def get_current_active_user(current_user: AuthModel = Depends(get_current_user))
 
 def change_password(db, user, password):
     tmp = []
-    hashed_pw = get_password_hash(password)
-    filter = {"username": user}
-    db.update_one(filter, {"$set": {"password": hashed_pw}})
-    for x in db.find(filter):
-        tmp.append(x)
-    return tmp
+    if get_user(db, user) == None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username")
+    else:
+        hashed_pw = get_password_hash(password)
+        filter = {"username": user}
+        db.update_one(filter, {"$set": {"password": hashed_pw}})
+        for x in db.find(filter):
+            tmp.append(x)
+        return tmp
