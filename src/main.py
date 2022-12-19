@@ -6,7 +6,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from .data import DataHandler
 from .auth import register_user, authenticate_user, create_access_token, get_current_active_user
-from .models import RegModel, AuthModel, DataModel
+from .models import RegModel, AuthModel, DataModel, AuthPW
 from dotenv import dotenv_values
 
 config = dotenv_values("src/.env")
@@ -46,9 +46,21 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return tmp
 
 
-@app.get("/user")
+@app.get("/user/me")
 def read_users_me(current_user: AuthModel = Depends(get_current_active_user)):
     return Response(status_code=status.HTTP_200_OK, content=current_user)
+
+
+@app.post("/user/password")
+def change_password(password: AuthPW, current_user: AuthModel = Depends(get_current_active_user)):
+    password = jsonable_encoder(password)
+    tmp = []
+    filter = {"username": current_user}
+    new_pw = {"$set": {"password": password}}
+    profileC.update_one(filter, new_pw)
+    for x in profileC.find(filter):
+        tmp.append(x)  # hash new password
+    return JSONResponse(status_code=status.HTTP_200_OK, content=tmp)
 
 
 @app.get("/profile/get")
