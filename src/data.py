@@ -4,12 +4,13 @@ from fastapi import HTTPException
 
 class DataHandler():
     # Hilfsfunktion um Sensor Daten in Datenbank speichern
-    def add_data(db, data):
+    def add_air_data(db, data):
         if data["sensor"] == "BME680":
+
             data["temp"] = round(data["temp"], 2)
             data["humi"] = round(data["humi"], 2)
             data["press"] = round(data["press"], 2)
-            data.pop("power")
+
             if data["temp"] < -20 or data["temp"] > 50:
                 raise HTTPException(
                     status_code=400, detail="Wrong temperature input")
@@ -26,17 +27,17 @@ class DataHandler():
                 newData = db.insert_one(data)
                 curData = db.find_one({"_id": newData.inserted_id})
                 return curData
+        else:
+            raise HTTPException(status_code=400, detail="Wrong sensor in use")
 
-        elif data["sensor"] == "CT-Sensor":
+    def add_power_data(db, data):
+        if data["sensor"] == "CT-Sensor":
             data["power"] = round(data["power"], 2)
-            data.pop("temp")
-            data.pop("humi")
-            data.pop("press")
             newData = db.insert_one(data)
             curData = db.find_one({"_id": newData.inserted_id})
             return curData
         else:
-            raise HTTPException(status_code=400, detail="Wrong power input")
+            raise HTTPException(status_code=400, detail="Wrong sensor in use")
 
     # Hilfsfunkion um Max, Min, Average, Current (ggf. Location Eingabe) Wert zu erhalten
     def get_data(db, loc, sensor, type):
