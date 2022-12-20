@@ -39,13 +39,26 @@ class AuthModel(BaseModel):
     password: str
 
 
-class DataModel(BaseModel):
+class DataAirModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     loc: str
     sensor: str
     temp: float
     humi: float
     press: float
+    timestamp: datetime = Field(default_factory=lambda: (
+        datetime.utcnow()+timedelta(hours=1)))
+
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+
+
+class DataPowerModel(BaseModel):
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    loc: str
+    sensor: str
     power: float
     timestamp: datetime = Field(default_factory=lambda: (
         datetime.utcnow()+timedelta(hours=1)))
