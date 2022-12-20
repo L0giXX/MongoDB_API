@@ -7,7 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from .data import DataHandler
 from .auth import *
-from .models import RegModel, AuthModel, DataModel
+from .models import RegModel, AuthModel, DataAirModel, DataPowerModel
 
 
 client = pymongo.MongoClient(os.environ["MONGODB_URL"])
@@ -65,10 +65,17 @@ def get_profile():
     return JSONResponse(status_code=status.HTTP_200_OK, content=tmp)
 
 
-@app.post("/data/add")
-def add_data(req: DataModel):
+@app.post("/data/air/add")
+def add_data(req: DataAirModel):
     req = jsonable_encoder(req)
-    data = DataHandler.add_data(dataC, req)
+    data = DataHandler.add_air_data(dataC, req)
+    return JSONResponse(status_code=status.HTTP_200_OK, content=data)
+
+
+@app.post("/data/power/add")
+def add_data(req: DataPowerModel):
+    req = jsonable_encoder(req)
+    data = DataHandler.add_power_data(dataC, req)
     return JSONResponse(status_code=status.HTTP_200_OK, content=data)
 
 
