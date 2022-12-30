@@ -1,12 +1,13 @@
+import re
 import pymongo
 from fastapi import HTTPException
 
 
 class DataHandler():
     # Hilfsfunktion um Sensor Daten in Datenbank speichern
+
     def add_air_data(db, data):
-        x: str = data["ip"]
-        if x.count('.') == 3:
+        if re.match("[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", data["ip"]):
             if data["sensor"] == "BME680":
 
                 data["temp"] = round(data["temp"], 2)
@@ -36,8 +37,7 @@ class DataHandler():
             raise HTTPException(status_code=400, detail="Wrong IP adress")
 
     def add_power_data(db, data):
-        x: str = data["ip"]
-        if x.count('.') == 3:
+        if re.match("[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", data["ip"]):
             if data["sensor"] == "CT-Sensor":
                 data["power"] = round(data["power"], 2)
                 newData = db.insert_one(data)
