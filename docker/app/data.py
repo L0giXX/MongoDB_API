@@ -5,39 +5,35 @@ from fastapi import HTTPException
 class DataHandler():
     # Hilfsfunktion um Sensor Daten in Datenbank speichern
     def add_air_data(db, data):
-        if data["sensor"] == "BME680":
+        x: str = data["ip"]
+        if x.count('.') == 3:
+            if data["sensor"] == "BME680":
 
-            data["temp"] = round(data["temp"], 2)
-            data["humi"] = round(data["humi"], 2)
-            data["press"] = round(data["press"], 2)
+                data["temp"] = round(data["temp"], 2)
+                data["humi"] = round(data["humi"], 2)
+                data["press"] = round(data["press"], 2)
 
-            if data["temp"] < -20 or data["temp"] > 50:
-                raise HTTPException(
-                    status_code=400, detail="Wrong temperature input")
+                if data["temp"] < -20 or data["temp"] > 50:
+                    raise HTTPException(
+                        status_code=400, detail="Wrong temperature input")
 
-            elif data["humi"] < 20 or data["humi"] > 70:
-                raise HTTPException(
-                    status_code=400, detail="Wrong humidity input")
+                elif data["humi"] < 20 or data["humi"] > 70:
+                    raise HTTPException(
+                        status_code=400, detail="Wrong humidity input")
 
-            elif data["press"] < 0 or data["press"] > 1.5:
-                raise HTTPException(
-                    status_code=400, detail="Wrong pressure input")
+                elif data["press"] < 0 or data["press"] > 1.5:
+                    raise HTTPException(
+                        status_code=400, detail="Wrong pressure input")
 
+                else:
+                    newData = db.insert_one(data)
+                    curData = db.find_one({"_id": newData.inserted_id})
+                    return curData
             else:
-                newData = db.insert_one(data)
-                curData = db.find_one({"_id": newData.inserted_id})
-                return curData
+                raise HTTPException(
+                    status_code=400, detail="Wrong sensor in use")
         else:
-            raise HTTPException(status_code=400, detail="Wrong sensor in use")
-
-    def add_power_data(db, data):
-        if data["sensor"] == "CT-Sensor":
-            data["power"] = round(data["power"], 2)
-            newData = db.insert_one(data)
-            curData = db.find_one({"_id": newData.inserted_id})
-            return curData
-        else:
-            raise HTTPException(status_code=400, detail="Wrong sensor in use")
+            raise HTTPException(status_code=400, detail="Wrong IP adress")
 
     # Hilfsfunkion um Max, Min, Average, Current (ggf. Location Eingabe) Wert zu erhalten
     def get_data(db, loc, sensor, type):

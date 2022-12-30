@@ -41,6 +41,7 @@ class AuthModel(BaseModel):
 
 class DataAirModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    ip: str
     loc: str
     sensor: str
     temp: float
@@ -57,6 +58,7 @@ class DataAirModel(BaseModel):
 
 class DataPowerModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    ip: str
     loc: str
     sensor: str
     power: float
