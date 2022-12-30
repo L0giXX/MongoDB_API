@@ -36,13 +36,18 @@ class DataHandler():
             raise HTTPException(status_code=400, detail="Wrong IP adress")
 
     def add_power_data(db, data):
-        if data["sensor"] == "CT-Sensor":
-            data["power"] = round(data["power"], 2)
-            newData = db.insert_one(data)
-            curData = db.find_one({"_id": newData.inserted_id})
-            return curData
+        x: str = data["ip"]
+        if x.count('.') == 3:
+            if data["sensor"] == "CT-Sensor":
+                data["power"] = round(data["power"], 2)
+                newData = db.insert_one(data)
+                curData = db.find_one({"_id": newData.inserted_id})
+                return curData
+            else:
+                raise HTTPException(
+                    status_code=400, detail="Wrong sensor in use")
         else:
-            raise HTTPException(status_code=400, detail="Wrong sensor in use")
+            raise HTTPException(status_code=400, detail="Wrong IP adress")
 
     # Hilfsfunkion um Max, Min, Average, Current (ggf. Location Eingabe) Wert zu erhalten
     def get_data(db, loc, sensor, type):
