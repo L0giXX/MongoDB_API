@@ -9,9 +9,9 @@ from .models import AuthModel
 
 
 oauth2 = OAuth2PasswordBearer(tokenUrl="login")
-ctx = CryptContext(schemes=["sha256_crypt"])
+ctx = CryptContext(schemes=[os.environ["SCHEME"]])
 secret_key = os.environ["SECRET_KEY"]
-ALGORITHM = "HS256"
+ALGORITHM = os.environ["ALGO"]
 
 
 def verify_password(plain_password, hashed_password):
