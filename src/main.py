@@ -33,10 +33,39 @@ app.add_middleware(
 )
 
 
+def kelvin_to_celsius(kelvin):
+    celsius = kelvin - 273.15
+    return celsius
+
+
+def hpa_to_bar(hPA):
+    bar = hPA/1000
+    return bar
+
+
 @app.get("/weather/{city}")
 def get_weather():
+    dict = {}
     response = requests.get(url).json()
-    return response
+    weather = response["weather"]["main"]
+    temp_curr_kelvin = response["main"]["temp"]
+    temp_max_kelvin = response["main"]["temp_max"]
+    temp_min_kelvin = response["main"]["temp_min"]
+    humi = response["main"]["humidity"]
+    press_hPA = response["main"]["pressure"]
+
+    temp_curr_celsius = round(kelvin_to_celsius(temp_curr_kelvin), 2)
+    temp_max_celsius = round(kelvin_to_celsius(temp_max_kelvin), 2)
+    temp_min_celsius = round(kelvin_to_celsius(temp_min_kelvin), 2)
+    press_bar = hpa_to_bar(press_hPA)
+
+    dict.update({"Weather": weather})
+    dict.update({"Current Temperature": temp_curr_celsius})
+    dict.update({"Max Temperature": temp_max_celsius})
+    dict.update({"Min Temperature": temp_min_celsius})
+    dict.update({"Humidity": humi})
+    dict.update({"Pressure": press_bar})
+    return JSONResponse(content=dict, status_code=status.HTTP_200_OK)
 
 
 @app.post("/register")
