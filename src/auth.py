@@ -11,9 +11,9 @@ config = dotenv_values("src/.env")
 
 
 oauth2 = OAuth2PasswordBearer(tokenUrl="login")
-ctx = CryptContext(schemes=[config["SCHEME"]])
+ctx = CryptContext(schemes=["sha256_crypt"])
 secret_key = config["SECRET_KEY"]
-ALGORITHM = config["ALGO"]
+ALGORITHM = "HS256"
 
 
 def verify_password(plain_password, hashed_password):
