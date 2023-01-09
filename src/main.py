@@ -1,4 +1,5 @@
 import pymongo
+import requests
 from fastapi import FastAPI, status, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import Response, JSONResponse
@@ -16,6 +17,12 @@ db = client["ESP32DB"]
 dataC = db["data"]
 profileC = db["profile"]
 
+BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
+API_KEY = "e4b10a43b59eeb936e6be662819e8068"
+CITY = "Vienna"
+
+url = BASE_URL + "appid=" + API_KEY + "&q=" + CITY
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -24,6 +31,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/weather/{city}")
+def get_weather():
+    response = requests.get(url).json()
+    return response
 
 
 @app.post("/register")
