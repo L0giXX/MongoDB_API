@@ -5,7 +5,6 @@ from fastapi import HTTPException
 
 class DataHandler():
     # Hilfsfunktion um Sensor Daten in Datenbank speichern
-
     def add_air_data(db, data):
         if re.match("[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", data["ip"]):
             if data["sensor"] == "BME680":

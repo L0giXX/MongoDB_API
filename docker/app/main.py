@@ -162,6 +162,20 @@ def get_power():
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
+@app.get("/data/get/power/kitchen")
+def get_press():
+    dict = {}
+    dict = DataHandler.get_data(dataC, "Kitchen", "CT-Sensor", "power")
+    return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
+
+
+@app.get("/data/get/power/bedroom")
+def get_press():
+    dict = {}
+    dict = DataHandler.get_data(dataC, "Bedroom", "CT-Sensor", "power")
+    return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
+
+
 @app.delete("/data/delete")
 def delete_data():
     x = dataC.delete_many({})
