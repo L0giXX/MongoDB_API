@@ -17,3 +17,4 @@ Function
 - Getting data from database
 - Visualizing data on website
 - Register/login account
+- API request for weather data
