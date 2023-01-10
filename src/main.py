@@ -18,7 +18,7 @@ dataC = db["data"]
 profileC = db["profile"]
 
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
-API_KEY = "test"
+API_KEY = config["API_KEY"]
 CITY = "Vienna"
 
 url = BASE_URL + "appid=" + API_KEY + "&q=" + CITY
@@ -43,23 +43,22 @@ def hpa_to_bar(hPA):
     return bar
 
 
-@app.get("/weather/{city}")
+@app.get("/weather")
 def get_weather():
     dict = {}
-    response = requests.get(url).json()
-    weather = response["weather"]["main"]
-    temp_curr_kelvin = response["main"]["temp"]
-    temp_max_kelvin = response["main"]["temp_max"]
-    temp_min_kelvin = response["main"]["temp_min"]
-    humi = response["main"]["humidity"]
-    press_hPA = response["main"]["pressure"]
+    response = requests.get(url)
+    data = response.json()
+    temp_curr_kelvin = data["main"]["temp"]
+    temp_max_kelvin = data["main"]["temp_max"]
+    temp_min_kelvin = data["main"]["temp_min"]
+    humi = data["main"]["humidity"]
+    press_hPA = data["main"]["pressure"]
 
     temp_curr_celsius = round(kelvin_to_celsius(temp_curr_kelvin), 2)
     temp_max_celsius = round(kelvin_to_celsius(temp_max_kelvin), 2)
     temp_min_celsius = round(kelvin_to_celsius(temp_min_kelvin), 2)
     press_bar = hpa_to_bar(press_hPA)
 
-    dict.update({"Weather": weather})
     dict.update({"Current Temperature": temp_curr_celsius})
     dict.update({"Max Temperature": temp_max_celsius})
     dict.update({"Min Temperature": temp_min_celsius})

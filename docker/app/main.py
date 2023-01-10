@@ -1,5 +1,7 @@
 import os
 import pymongo
+import requests
+from dotenv import load_dotenv
 from fastapi import FastAPI, status, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import Response, JSONResponse
@@ -9,11 +11,19 @@ from .data import DataHandler
 from .auth import *
 from .models import RegModel, AuthModel, DataAirModel, DataPowerModel
 
+load_dotenv()
 
-client = pymongo.MongoClient(os.environ["MONGODB_URL"])
+client = pymongo.MongoClient(os.getenv("MONGODB_URL"))
 db = client["ESP32DB"]
 dataC = db["data"]
 profileC = db["profile"]
+
+BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
+API_KEY = os.getenv("API_KEY")
+CITY = "Vienna"
+
+
+url = BASE_URL + "appid=" + API_KEY + "&q=" + CITY
 
 app = FastAPI()
 app.add_middleware(
@@ -23,6 +33,40 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def kelvin_to_celsius(kelvin):
+    celsius = kelvin - 273.15
+    return celsius
+
+
+def hpa_to_bar(hPA):
+    bar = hPA/1000
+    return bar
+
+
+@app.get("/weather")
+def get_weather():
+    dict = {}
+    response = requests.get(url)
+    data = response.json()
+    temp_curr_kelvin = data["main"]["temp"]
+    temp_max_kelvin = data["main"]["temp_max"]
+    temp_min_kelvin = data["main"]["temp_min"]
+    humi = data["main"]["humidity"]
+    press_hPA = data["main"]["pressure"]
+
+    temp_curr_celsius = round(kelvin_to_celsius(temp_curr_kelvin), 2)
+    temp_max_celsius = round(kelvin_to_celsius(temp_max_kelvin), 2)
+    temp_min_celsius = round(kelvin_to_celsius(temp_min_kelvin), 2)
+    press_bar = hpa_to_bar(press_hPA)
+
+    dict.update({"Current Temperature": temp_curr_celsius})
+    dict.update({"Max Temperature": temp_max_celsius})
+    dict.update({"Min Temperature": temp_min_celsius})
+    dict.update({"Humidity": humi})
+    dict.update({"Pressure": press_bar})
+    return JSONResponse(content=dict, status_code=status.HTTP_200_OK)
 
 
 @app.post("/register")

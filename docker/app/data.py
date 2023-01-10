@@ -17,7 +17,7 @@ class DataHandler():
                     raise HTTPException(
                         status_code=400, detail="Wrong temperature input")
 
-                elif data["humi"] < 20 or data["humi"] > 70:
+                elif data["humi"] < 20 or data["humi"] > 90:
                     raise HTTPException(
                         status_code=400, detail="Wrong humidity input")
 

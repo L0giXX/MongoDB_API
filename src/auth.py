@@ -9,7 +9,6 @@ from .models import AuthModel
 
 config = dotenv_values("src/.env")
 
-
 oauth2 = OAuth2PasswordBearer(tokenUrl="login")
 ctx = CryptContext(schemes=["sha256_crypt"])
 secret_key = config["SECRET_KEY"]
