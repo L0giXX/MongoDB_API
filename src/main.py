@@ -59,11 +59,8 @@ def get_weather():
     temp_min_celsius = round(kelvin_to_celsius(temp_min_kelvin), 2)
     press_bar = hpa_to_bar(press_hPA)
 
-    dict.update({"Current Temperature": temp_curr_celsius})
-    dict.update({"Max Temperature": temp_max_celsius})
-    dict.update({"Min Temperature": temp_min_celsius})
-    dict.update({"Humidity": humi})
-    dict.update({"Pressure": press_bar})
+    dict.update({"Current Temperature": temp_curr_celsius, "Max Temperature": temp_max_celsius,
+                "Min Temperature": temp_min_celsius, "Humidity": humi, "Pressure": press_bar})
     return JSONResponse(content=dict, status_code=status.HTTP_200_OK)
 
 
