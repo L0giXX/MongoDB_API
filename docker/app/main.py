@@ -50,19 +50,15 @@ def get_weather():
     dict = {}
     response = requests.get(url)
     data = response.json()
-    temp_curr_kelvin = data["main"]["temp"]
-    temp_max_kelvin = data["main"]["temp_max"]
-    temp_min_kelvin = data["main"]["temp_min"]
+    weather = data["weather"][0]["main"]
+    temp_curr_celsius = round(kelvin_to_celsius(data["main"]["temp"]), 2)
+    temp_max_celsius = round(kelvin_to_celsius(data["main"]["temp_max"]), 2)
+    temp_min_celsius = round(kelvin_to_celsius(data["main"]["temp_min"]), 2)
     humi = data["main"]["humidity"]
-    press_hPA = data["main"]["pressure"]
+    press_bar = hpa_to_bar(data["main"]["pressure"])
 
-    temp_curr_celsius = round(kelvin_to_celsius(temp_curr_kelvin), 2)
-    temp_max_celsius = round(kelvin_to_celsius(temp_max_kelvin), 2)
-    temp_min_celsius = round(kelvin_to_celsius(temp_min_kelvin), 2)
-    press_bar = hpa_to_bar(press_hPA)
-
-    dict.update({"Current Temperature": temp_curr_celsius, "Max Temperature": temp_max_celsius,
-                "Min Temperature": temp_min_celsius, "Humidity": humi, "Pressure": press_bar})
+    dict.update({"Weather": weather, "Current Temperature": temp_curr_celsius, "Max Temperature": temp_max_celsius,
+                 "Min Temperature": temp_min_celsius, "Humidity": humi, "Pressure": press_bar})
     return JSONResponse(content=dict, status_code=status.HTTP_200_OK)
 
 
