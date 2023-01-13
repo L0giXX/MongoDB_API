@@ -10,6 +10,8 @@ My part of the diploma thesis is the development of an API, which is using Mongo
 - Getting data from database to visiualize it 
 - Register/Login user
 - Requesting current weather from https://home.openweathermap.org/
+  
+  
 
 ### Using the API
 
@@ -42,9 +44,21 @@ uvicorn src.main:app --reload
 
 Now you can start testing the different requests via Postman or Thunderclient.
 
+
+
 ### Deploying the API
 
-First of all if you want to use the API you need to deploy it on a server. Therefore you need to configure a dockerfile. This is used to isolate the files and build an image. You have to install the application *Docker Desktop*. The dockerfile code can be seen at /docker/dockerfile. But before that you need to copy all the files from src and make 2 new folders called /docker/app. Then you paste the files into /docker/app. Besides the dockerfile you also need to copy the requirements.txt file and paste it into /docker.
+First of all if you want to use the API you need to deploy it on a server. Therefore you need to configure a dockerfile. This is used to isolate the files and build an image.  The dockerfile code can be seen at /docker/dockerfile. 
+
+- Install Docker Desktop
+
+- 2 new folders /docker/app
+
+- Copy the Python files from src into /docker/app
+
+- Make a new dockerfile in /docker
+
+- Copy requirements.txt into /docker
 
 ```python
 # Create a docker account 
