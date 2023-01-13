@@ -46,7 +46,7 @@ Now you can start testing the different requests via Postman or Thunderclient.
 
 First of all if you want to use the API you need to deploy it on a server. Therefore you need to configure a dockerfile. This is used to isolate the files and build an image. You have to install the application *Docker Desktop*. The dockerfile code can be seen at /docker/dockerfile. But before that you need to copy all the files from src and make 2 new folders called /docker/app. Then you paste the files into /docker/app. Besides the dockerfile you also need to copy the requirements.txt file and paste it into /docker.
 
-```docker
+```
 # Create a docker account 
 # Login at https://hub.docker.com/ and create a new repository
 # Paste the commands into a terminal, while docker desktop is being used
