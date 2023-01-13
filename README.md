@@ -2,10 +2,6 @@
 
 ## Smart Monitoring Dashboard
 
----
-
-## Small documentation of my final year project
-
 My part of the diploma thesis is the development of an API, which is using MongoDB as the database mangagement system. The code is written in Python and I am using the popular Web-Framework FastAPI.
 
 ### Functions
@@ -61,4 +57,4 @@ docker build -t {username/repository} docker
 docker push {username/repository}
 ```
 
-If the build was successful you will find the image in your docker repository.                 Then you can deploy the image on your server and start using the API.
+If the build was successful you will find the image in your docker repository. Then you can deploy the image on your server and start using the API.
