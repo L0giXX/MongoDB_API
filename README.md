@@ -4,18 +4,18 @@
 
 ---
 
-### This is a small documentation of my final year project
+## Small documentation of my final year project
 
 My part of the diploma thesis is the development of an API, which is using MongoDB as the database mangagement system. The code is written in Python and I am using the popular Web-Framework FastAPI.
 
-#### Functions
+### Functions
 
 - Saving sensor data from ESP32 into database
 - Getting data from database to visiualize it 
 - Register/Login user
 - Requesting current weather from https://home.openweathermap.org/
 
-#### Using the API
+### Using the API
 
 Activate your Python virtual environment and change the MongoDB URL with your MongoDB connection string. It is highly recommended to use a .env file for security reasons.
 
@@ -42,12 +42,11 @@ url = BASE_URL + "appid=" + API_KEY + "&q=" + CITY
 
 # Start the service:
 uvicorn src.main:app --reload
-
 ```
 
 Now you can start testing the different requests via Postman or Thunderclient.
 
-#### Deploying the API
+### Deploying the API
 
 First of all if you want to use the API you need to deploy it on a server. Therefore you need to configure a dockerfile. This is used to isolate the files and build an image. You have to install the application *Docker Desktop*. The dockerfile code can be seen at /docker/dockerfile. But before that you need to copy all the files from src and make 2 new folders called /docker/app. Then you paste the files into /docker/app. Besides the dockerfile you also need to copy the requirements.txt file and paste it into /docker.
 
