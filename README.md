@@ -2,7 +2,7 @@
 
 ## Smart Monitoring Dashboard
 
-My part of the diploma thesis is the development of an API, which is using MongoDB as the database mangagement system. The code is written in Python and I am using the popular Web-Framework FastAPI.
+My part of the diploma thesis is the development of an API, which is using MongoDB as the database. The code is written in Python and I am using the popular Web-Framework FastAPI.
 
 ### Functions
 
@@ -22,7 +22,7 @@ pip install -r requirements.txt
 # Configure the location of your MongoDB database:
 # If you are using a .env file (recommended):
 client = pymongo.MongoClient(config["MONGODB_URL"])
-# If you have the MongoDB URL hardcorded:
+# If you have the MongoDB URL hardcoded:
 client = pymongo.MongoClient("MONGODB_URL")
 
 # Configure the openweathermap URL:
@@ -30,7 +30,7 @@ BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
 
 # If you are using a .env file (recommended):
 API_KEY = config["API_KEY"]
-# If you have the openweather API KEY hardcorded:
+# If you have the openweather API KEY hardcoded:
 API_KEY = "API_KEY"
 # Choose your city:
 CITY = "Vienna"
