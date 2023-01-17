@@ -3,6 +3,60 @@ import pymongo
 from fastapi import HTTPException
 
 
+def max(db, loc, sensor, type, dict):
+    tmp = []
+    if loc == None:
+        for x in db.find({"sensor": sensor}).sort(type, pymongo.DESCENDING).limit(1):
+            tmp.append(x)
+    else:
+        for x in db.find({"loc": loc, "sensor": sensor}).sort(type, pymongo.DESCENDING).limit(1):
+            tmp.append(x)
+    max = round(tmp[0][type], 2)
+    dict.update({"Max": max})
+
+
+def min(db, loc, sensor, type, dict):
+    tmp = []
+    if loc == None:
+        for x in db.find({"sensor": sensor}).sort(type, pymongo.ASCENDING).limit(1):
+            tmp.append(x)
+    else:
+        for x in db.find({"loc": loc, "sensor": sensor}).sort(type, pymongo.ASCENDING).limit(1):
+            tmp.append(x)
+    min = round(tmp[0][type], 2)
+    dict.update({"Min": min})
+
+
+def average(db, loc, sensor, type, dict):
+    tmp = []
+    sum = 0
+    count = 0
+    if loc == None:
+        for x in db.find({"sensor": sensor}):
+            tmp.append(x)
+    else:
+        for x in db.find({"loc": loc, "sensor": sensor}):
+            tmp.append(x)
+    while (count < len(tmp)):
+        help = tmp[count][type]
+        sum += help
+        count += 1
+    avg = round(sum/len(tmp), 2)
+    dict.update({"Avg": avg})
+
+
+def current(db, loc, sensor, type, dict):
+    tmp = []
+    if loc == None:
+        for x in db.find({"sensor": sensor}):
+            tmp.append(x)
+    else:
+        for x in db.find({"loc": loc, "sensor": sensor}):
+            tmp.append(x)
+    current = tmp[-1][type]
+    dict.update({"Current": current})
+
+
 class DataHandler():
     # Hilfsfunktion um Sensor Daten in Datenbank speichern
     def add_air_data(db, data):
@@ -50,60 +104,11 @@ class DataHandler():
 
     # Hilfsfunkion um Max, Min, Average, Current (ggf. Location Eingabe) Wert zu erhalten
     def get_data(db, loc, sensor, type):
-        dict = {}
-        tmp1 = []
-        tmp2 = []
-        tmp3 = []
-        tmp4 = []
-        sum = 0
-        count = 0
-
         if not db.find_one({"loc": loc}) and loc != None:
             raise HTTPException(
                 status_code=400, detail="No entries for this location")
-
-        # Max
-        if loc == None:
-            for x in db.find({"sensor": sensor}).sort(type, pymongo.DESCENDING).limit(1):
-                tmp1.append(x)
-        else:
-            for x in db.find({"loc": loc, "sensor": sensor}).sort(type, pymongo.DESCENDING).limit(1):
-                tmp1.append(x)
-        max = round(tmp1[0][type], 2)
-        dict.update({"Max": max})
-
-        # Min
-        if loc == None:
-            for x in db.find({"sensor": sensor}).sort(type, pymongo.ASCENDING).limit(1):
-                tmp2.append(x)
-        else:
-            for x in db.find({"loc": loc, "sensor": sensor}).sort(type, pymongo.ASCENDING).limit(1):
-                tmp2.append(x)
-        min = round(tmp2[0][type], 2)
-        dict.update({"Min": min})
-
-        # Average
-        if loc == None:
-            for x in db.find({"sensor": sensor}):
-                tmp3.append(x)
-        else:
-            for x in db.find({"loc": loc, "sensor": sensor}):
-                tmp3.append(x)
-        while (count < len(tmp3)):
-            help = tmp3[count][type]
-            sum += help
-            count += 1
-        avg = round(sum/len(tmp3), 2)
-        dict.update({"Avg": avg})
-
-        # Latest
-        if loc == None:
-            for x in db.find({"sensor": sensor}):
-                tmp4.append(x)
-        else:
-            for x in db.find({"loc": loc, "sensor": sensor}):
-                tmp4.append(x)
-        current = tmp4[-1][type]
-        dict.update({"Current": current})
-
+        max(db, loc, sensor, type, dict)
+        min(db, loc, sensor, type, dict)
+        average(db, loc, sensor, type, dict)
+        current(db, loc, sensor, type, dict)
         return dict
