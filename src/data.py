@@ -56,59 +56,63 @@ def current(db, loc, sensor, type, dict):
     current = tmp[-1][type]
     dict.update({"Current": current})
 
-
-class DataHandler():
     # Hilfsfunktion um Sensor Daten in Datenbank speichern
-    def add_air_data(db, data):
-        if re.match("[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", data["ip"]):
-            if data["sensor"] == "BME680":
 
-                data["temp"] = round(data["temp"], 2)
-                data["humi"] = round(data["humi"], 2)
-                data["press"] = round(data["press"], 2)
 
-                if data["temp"] < -20 or data["temp"] > 50:
-                    raise HTTPException(
-                        status_code=400, detail="Wrong temperature input")
+def add_air_data(db, data):
+    if re.match("[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", data["ip"]):
+        if data["sensor"] == "BME680":
 
-                elif data["humi"] < 20 or data["humi"] > 90:
-                    raise HTTPException(
-                        status_code=400, detail="Wrong humidity input")
+            data["temp"] = round(data["temp"], 2)
+            data["humi"] = round(data["humi"], 2)
+            data["press"] = round(data["press"], 2)
 
-                elif data["press"] < 0 or data["press"] > 1.5:
-                    raise HTTPException(
-                        status_code=400, detail="Wrong pressure input")
-
-                else:
-                    newData = db.insert_one(data)
-                    curData = db.find_one({"_id": newData.inserted_id})
-                    return curData
-            else:
+            if data["temp"] < -20 or data["temp"] > 50:
                 raise HTTPException(
-                    status_code=400, detail="Wrong sensor in use")
-        else:
-            raise HTTPException(status_code=400, detail="Wrong IP adress")
+                    status_code=400, detail="Wrong temperature input")
 
-    def add_power_data(db, data):
-        if re.match("[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", data["ip"]):
-            if data["sensor"] == "CT-Sensor":
-                data["power"] = round(data["power"], 2)
+            elif data["humi"] < 20 or data["humi"] > 90:
+                raise HTTPException(
+                    status_code=400, detail="Wrong humidity input")
+
+            elif data["press"] < 0 or data["press"] > 1.5:
+                raise HTTPException(
+                    status_code=400, detail="Wrong pressure input")
+
+            else:
                 newData = db.insert_one(data)
                 curData = db.find_one({"_id": newData.inserted_id})
                 return curData
-            else:
-                raise HTTPException(
-                    status_code=400, detail="Wrong sensor in use")
         else:
-            raise HTTPException(status_code=400, detail="Wrong IP adress")
+            raise HTTPException(
+                status_code=400, detail="Wrong sensor in use")
+    else:
+        raise HTTPException(status_code=400, detail="Wrong IP adress")
+
+
+def add_power_data(db, data):
+    if re.match("[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", data["ip"]):
+        if data["sensor"] == "CT-Sensor":
+            data["power"] = round(data["power"], 2)
+            newData = db.insert_one(data)
+            curData = db.find_one({"_id": newData.inserted_id})
+            return curData
+        else:
+            raise HTTPException(
+                status_code=400, detail="Wrong sensor in use")
+    else:
+        raise HTTPException(status_code=400, detail="Wrong IP adress")
 
     # Hilfsfunkion um Max, Min, Average, Current (ggf. Location Eingabe) Wert zu erhalten
-    def get_data(db, loc, sensor, type):
-        if not db.find_one({"loc": loc}) and loc != None:
-            raise HTTPException(
-                status_code=400, detail="No entries for this location")
-        max(db, loc, sensor, type, dict)
-        min(db, loc, sensor, type, dict)
-        average(db, loc, sensor, type, dict)
-        current(db, loc, sensor, type, dict)
-        return dict
+
+
+def get_data(db, loc, sensor, type):
+    dict = {}
+    if not db.find_one({"loc": loc}) and loc != None:
+        raise HTTPException(
+            status_code=400, detail="No entries for this location")
+    max(db, loc, sensor, type, dict)
+    min(db, loc, sensor, type, dict)
+    average(db, loc, sensor, type, dict)
+    current(db, loc, sensor, type, dict)
+    return dict

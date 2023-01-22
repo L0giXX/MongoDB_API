@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import Response, JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from .data import DataHandler
+from .data import add_air_data, add_power_data, get_data
 from .auth import *
 from .models import RegModel, AuthModel, DataAirModel, DataPowerModel
 from dotenv import dotenv_values
@@ -103,14 +103,14 @@ def get_profile():
 @app.post("/data/air/add")
 def add_data(req: DataAirModel):
     req = jsonable_encoder(req)
-    data = DataHandler.add_air_data(dataC, req)
+    data = add_air_data(dataC, req)
     return JSONResponse(status_code=status.HTTP_200_OK, content=data)
 
 
 @app.post("/data/power/add")
 def add_data(req: DataPowerModel):
     req = jsonable_encoder(req)
-    data = DataHandler.add_power_data(dataC, req)
+    data = add_power_data(dataC, req)
     return JSONResponse(status_code=status.HTTP_200_OK, content=data)
 
 
@@ -130,84 +130,84 @@ def get_all_data():
 @app.get("/data/get/temp")
 def get_temp():
     dict = {}
-    dict = DataHandler.get_data(dataC, None, "BME680", "temp")
+    dict = get_data(dataC, None, "BME680", "temp")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/temp/kitchen")
 def get_temp():
     dict = {}
-    dict = DataHandler.get_data(dataC, "Kitchen", "BME680", "temp")
+    dict = get_data(dataC, "Kitchen", "BME680", "temp")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/temp/bedroom")
 def get_temp():
     dict = {}
-    dict = DataHandler.get_data(dataC, "Bedroom", "BME680", "temp")
+    dict = get_data(dataC, "Bedroom", "BME680", "temp")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/humi")
 def get_humi():
     dict = {}
-    dict = DataHandler.get_data(dataC, None, "BME680", "humi")
+    dict = get_data(dataC, None, "BME680", "humi")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/humi/kitchen")
 def get_humi():
     dict = {}
-    dict = DataHandler.get_data(dataC, "Kitchen", "BME680", "humi")
+    dict = get_data(dataC, "Kitchen", "BME680", "humi")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/humi/bedroom")
 def get_humi():
     dict = {}
-    dict = DataHandler.get_data(dataC, "Bedroom", "BME680", "humi")
+    dict = get_data(dataC, "Bedroom", "BME680", "humi")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/press")
 def get_press():
     dict = {}
-    dict = DataHandler.get_data(dataC, None, "BME680", "press")
+    dict = get_data(dataC, None, "BME680", "press")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/press/kitchen")
 def get_press():
     dict = {}
-    dict = DataHandler.get_data(dataC, "Kitchen", "BME680", "press")
+    dict = get_data(dataC, "Kitchen", "BME680", "press")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/press/bedroom")
 def get_press():
     dict = {}
-    dict = DataHandler.get_data(dataC, "Bedroom", "BME680", "press")
+    dict = get_data(dataC, "Bedroom", "BME680", "press")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/power")
 def get_power():
     dict = {}
-    dict = DataHandler.get_data(dataC, None, "CT-Sensor", "power")
+    dict = get_data(dataC, None, "CT-Sensor", "power")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/power/kitchen")
 def get_press():
     dict = {}
-    dict = DataHandler.get_data(dataC, "Kitchen", "CT-Sensor", "power")
+    dict = get_data(dataC, "Kitchen", "CT-Sensor", "power")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
 @app.get("/data/get/power/bedroom")
 def get_press():
     dict = {}
-    dict = DataHandler.get_data(dataC, "Bedroom", "CT-Sensor", "power")
+    dict = get_data(dataC, "Bedroom", "CT-Sensor", "power")
     return JSONResponse(status_code=status.HTTP_200_OK, content=dict)
 
 
