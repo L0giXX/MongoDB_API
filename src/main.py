@@ -1,14 +1,14 @@
 import pymongo
 import requests
-from fastapi import FastAPI, status, Depends, HTTPException
+from fastapi import FastAPI, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import Response, JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import dotenv_values
 from .data import add_air_data, add_power_data, get_data
 from .auth import *
 from .models import RegModel, AuthModel, DataAirModel, DataPowerModel
-from dotenv import dotenv_values
 
 config = dotenv_values("src/.env")
 
