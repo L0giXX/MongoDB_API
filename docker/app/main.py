@@ -57,8 +57,8 @@ def get_weather():
     humi = data["main"]["humidity"]
     press_bar = hpa_to_bar(data["main"]["pressure"])
 
-    dict.update({"Weather": weather, "Current Temperature": temp_curr_celsius, "Max Temperature": temp_max_celsius,
-                 "Min Temperature": temp_min_celsius, "Humidity": humi, "Pressure": press_bar})
+    dict.update({"Weather": weather, "Current_Temperature": temp_curr_celsius, "Max_Temperature": temp_max_celsius,
+                 "Min_Temperature": temp_min_celsius, "Humidity": humi, "Pressure": press_bar})
     return JSONResponse(content=dict, status_code=status.HTTP_200_OK)
 
 
