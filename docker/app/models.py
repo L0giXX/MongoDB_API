@@ -59,7 +59,6 @@ class DataAirModel(BaseModel):
 class DataPowerModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     ip: str
-    loc: str
     sensor: str
     power: float
     timestamp: datetime = Field(default_factory=lambda: (
