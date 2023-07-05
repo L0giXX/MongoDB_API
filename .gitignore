@@ -156,3 +156,5 @@ cython_debug/
 
 # Info txt file
 info.txt
+
+.vscode
