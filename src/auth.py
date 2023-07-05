@@ -98,8 +98,8 @@ def get_current_user(token: str = Depends(oauth2)):
         raise credentials_exception
 
 
-def get_current_active_user(current_user: AuthModel = Depends(get_current_user)):
-    return current_user
+def get_current_active_user(current_user: AuthModel = Depends(
+    get_current_user)): return current_user
 
 
 def change_password(db, user, password):
